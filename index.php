@@ -3,8 +3,6 @@ $env_variables = getenv();
 
 
 $PROD_URL = $env_variables['PROD_URL'];
-//$JWT = $env_variables['JWT'];
-$DEFAULT_TOKEN = $env_variables['DEFAULT_TOKEN'];
 
 ?>
 <!doctype html>

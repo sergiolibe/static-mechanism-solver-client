@@ -43,7 +43,7 @@ class Canvas {
 
     cleanCanvas() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
+
         let previousFillStyle = this.context.fillStyle;
         this.context.fillStyle = 'white';
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -138,6 +138,7 @@ class Canvas {
                 // let axis = reaction.substr(-1, 1);
                 let magnitude = reaction.magnitude;
                 this.context.strokeStyle = magnitude > 0 ? 'blue' : 'red';
+                // this.context.strokeStyle = this.getInterpolatedReactionColor(magnitude);
 
                 let node = this.staticSystem.getNodeById(nodeName);
 
@@ -161,6 +162,7 @@ class Canvas {
             } else if (reaction.type === 'FORCE') {
                 let forceName = reaction.referenceId;
                 let magnitude = reaction.magnitude;
+                // this.context.strokeStyle = this.getInterpolatedReactionColor(magnitude);
                 this.context.strokeStyle = 'green';
 
                 let force = this.staticSystem.getForceById(forceName);
@@ -204,9 +206,9 @@ class Canvas {
 
         let gradient = this.context.createLinearGradient(gradientX0, 0, gradientX0+gradientW, 0);
         gradient.addColorStop(0,this.interpolateColor(0));
-        gradient.addColorStop(0.25,this.interpolateColor(0.25));
+        gradient.addColorStop(0.49,this.interpolateColor(0.49));
         gradient.addColorStop(0.5,this.interpolateColor(0.5));
-        gradient.addColorStop(0.75,this.interpolateColor(0.75));
+        gradient.addColorStop(0.51,this.interpolateColor(0.51));
         gradient.addColorStop(1,this.interpolateColor(1));
 
         this.context.fillStyle = gradient;
@@ -227,9 +229,9 @@ class Canvas {
     interpolateColor(value) {
         let colors = {
             "red": {value:0, arrayColor:[255,0,0]},
-            "yellow": {value:0.25, arrayColor:[255,255,0]},
-            "green": {value:0.5, arrayColor:[0,255,0]},
-            "cyan": {value:0.75, arrayColor:[0,255,255]},
+            "yellow": {value:0.49, arrayColor:[255,255,0]},
+            "black": {value:0.5, arrayColor:[0,0,0]},
+            "cyan": {value:0.51, arrayColor:[0,255,255]},
             "blue": {value:1, arrayColor:[0,0,255]}
         };
 
