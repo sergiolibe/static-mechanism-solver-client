@@ -5,56 +5,65 @@ class Canvas {
     h = 150;
     Cx = 30;
     Cy = 120;
-    nodeId;
-    canvas;
-    context;
+    canvasNodes;
+    staticCanvas;
+    dynamicCanvas;
+    staticContext;
     ptInPx;
     staticSystem={};
     listOfReactions={};
     maxTension;
     maxCompression;
 
-    constructor(nodeId) {
-        this.nodeId = nodeId;
-        this.canvas = document.getElementById(nodeId);
-        let canvasContainer = this.canvas.parentElement;
-        this.context = this.canvas.getContext('2d');
-        this.canvas.width = canvasContainer.clientWidth;
-        this.canvas.height = canvasContainer.clientHeight;
-        this.context.font = "12px Arial";
-        this.ptInPx = this.canvas.width / this.w;
+    constructor(canvasNodes) {
+        this.canvasNodes = canvasNodes;
+        this.staticCanvas = document.getElementById(canvasNodes.static);
+        this.dynamicCanvas = document.getElementById(canvasNodes.dynamic);
+        let canvasContainer = this.staticCanvas.parentElement;
+        this.staticContext = this.staticCanvas.getContext('2d');
+        this.staticCanvas.width = canvasContainer.clientWidth;
+        this.staticCanvas.height = canvasContainer.clientHeight;
+        this.staticContext.font = "12px Arial";
+
+        this.dynamicContext = this.dynamicCanvas.getContext('2d');
+        this.dynamicCanvas.width = canvasContainer.clientWidth;
+        this.dynamicCanvas.height = canvasContainer.clientHeight;
+        this.dynamicContext.font = "12px Arial";
+
+        this.ptInPx = this.staticCanvas.width / this.w;
         this.drawGuidelines();
+        this.setupEvents();
     }
 
     // draw
 
     drawGuidelines() {
-        let previousStrokeStyle = this.context.strokeStyle;
+        let previousStrokeStyle = this.staticContext.strokeStyle;
 
-        this.context.strokeStyle = 'black';
+        this.staticContext.strokeStyle = 'black';
         this.drawLine(-1, 0, +1, 0);
         this.drawLine(0, -1, 0, +1);
 
-        this.context.strokeStyle = 'rgba(123, 123, 123,0.5)';
+        this.staticContext.strokeStyle = 'rgba(123, 123, 123,0.5)';
         this.drawLine(-this.Cx + 1, 0, this.w - this.Cx - 1, 0);
         this.drawLine(0, -this.Cy + 1, 0, this.h - this.Cy - 1);
-        this.context.strokeStyle = previousStrokeStyle;
+        this.staticContext.strokeStyle = previousStrokeStyle;
     }
 
     cleanCanvas() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.staticContext.clearRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
 
-        let previousFillStyle = this.context.fillStyle;
-        this.context.fillStyle = 'white';
-        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.context.fillStyle = previousFillStyle;
+        let previousFillStyle = this.staticContext.fillStyle;
+        this.staticContext.fillStyle = 'white';
+        this.staticContext.fillRect(0, 0, this.staticCanvas.width, this.staticCanvas.height);
+        this.staticContext.fillStyle = previousFillStyle;
     }
 
     drawLine(x, y, xf, yf) {
-        this.context.beginPath();
-        this.context.moveTo(this.xPtToPx(x), this.yPtToPx(y));
-        this.context.lineTo(this.xPtToPx(xf), this.yPtToPx(yf));
-        this.context.stroke();
+        this.staticContext.beginPath();
+        this.staticContext.moveTo(this.xPtToPx(x), this.yPtToPx(y));
+        this.staticContext.lineTo(this.xPtToPx(xf), this.yPtToPx(yf));
+        this.staticContext.stroke();
     }
 
     drawArrow(x, y, xf, yf) {
@@ -84,7 +93,7 @@ class Canvas {
         let wT = this.ptToPx(w);
         let hT = this.ptToPx(h);
 
-        this.context.fillRect(xT, yT, wT, hT);
+        this.staticContext.fillRect(xT, yT, wT, hT);
     }
 
     drawSystem(staticSystem= null) {
@@ -130,14 +139,14 @@ class Canvas {
             })
         }
 
-        let previousStrokeStyle = this.context.strokeStyle;
+        let previousStrokeStyle = this.staticContext.strokeStyle;
         // console.log(listOfReactions);
         this.listOfReactions.forEach((reaction) => {
             if (reaction.type === 'U1' || reaction.type === 'U2') {
                 let nodeName = reaction.referenceId;
                 // let axis = reaction.substr(-1, 1);
                 let magnitude = reaction.magnitude;
-                this.context.strokeStyle = magnitude > 0 ? 'blue' : 'red';
+                this.staticContext.strokeStyle = magnitude > 0 ? 'blue' : 'red';
                 // this.context.strokeStyle = this.getInterpolatedReactionColor(magnitude);
 
                 let node = this.staticSystem.getNodeById(nodeName);
@@ -163,7 +172,7 @@ class Canvas {
                 let forceName = reaction.referenceId;
                 let magnitude = reaction.magnitude;
                 // this.context.strokeStyle = this.getInterpolatedReactionColor(magnitude);
-                this.context.strokeStyle = 'green';
+                this.staticContext.strokeStyle = 'green';
 
                 let force = this.staticSystem.getForceById(forceName);
 
@@ -182,7 +191,7 @@ class Canvas {
                 let beamName = reaction.referenceId;
                 let magnitude = reaction.magnitude;
                 // this.context.strokeStyle = magnitude > 0 ? 'cyan' : 'darkred';
-                this.context.strokeStyle = this.getInterpolatedReactionColor(magnitude);
+                this.staticContext.strokeStyle = this.getInterpolatedReactionColor(magnitude);
 
                 let beam = this.staticSystem.getBeamById(beamName);
 
@@ -190,30 +199,30 @@ class Canvas {
             }
 
         });
-        this.context.strokeStyle = previousStrokeStyle;
+        this.staticContext.strokeStyle = previousStrokeStyle;
 
         this.drawGradient();
     }
 
     drawGradient() {
-        let previousFillStyle = this.context.fillStyle;
+        let previousFillStyle = this.staticContext.fillStyle;
         // let gradient = this.context.createLinearGradient(0, 0, this.canvas.width/2, 0);
 
-        let gradientX0 = this.canvas.width / 4;
-        let gradientW = this.canvas.width / 2;
-        let gradientY0 = this.canvas.height - 30;
+        let gradientX0 = this.staticCanvas.width / 4;
+        let gradientW = this.staticCanvas.width / 2;
+        let gradientY0 = this.staticCanvas.height - 30;
         let gradientH = 20;
 
-        let gradient = this.context.createLinearGradient(gradientX0, 0, gradientX0+gradientW, 0);
+        let gradient = this.staticContext.createLinearGradient(gradientX0, 0, gradientX0+gradientW, 0);
         gradient.addColorStop(0,this.interpolateColor(0));
         gradient.addColorStop(0.49,this.interpolateColor(0.49));
         gradient.addColorStop(0.5,this.interpolateColor(0.5));
         gradient.addColorStop(0.51,this.interpolateColor(0.51));
         gradient.addColorStop(1,this.interpolateColor(1));
 
-        this.context.fillStyle = gradient;
-        this.context.fillRect(gradientX0, gradientY0, gradientW, gradientH);
-        this.context.fillStyle = previousFillStyle;
+        this.staticContext.fillStyle = gradient;
+        this.staticContext.fillRect(gradientX0, gradientY0, gradientW, gradientH);
+        this.staticContext.fillStyle = previousFillStyle;
 
         this.drawWordReal(gradientX0, gradientY0-10, this.maxCompression);
         this.drawWordReal(gradientX0+gradientW/2, gradientY0-10, 0);
@@ -279,9 +288,21 @@ class Canvas {
     }
 
 
+    drawCoordinatePosition(word,x,y){
+        let previousStrokeStyle = this.dynamicContext.strokeStyle;
+        this.dynamicContext.strokeStyle = 'black';
+        let text = word + ' ( ' + this.xPxToPt(x) + ' , ' + this.yPxToPt(y) + ' )';
+
+        this.dynamicContext.clearRect(10, this.dynamicCanvas.height-20, this.dynamicCanvas.width/2, 20);
+
+        this.dynamicContext.fillText(text, 10, this.dynamicCanvas.height-10);
+
+        this.dynamicContext.strokeStyle = previousStrokeStyle;
+    }
+
     drawBeam(beam) {
-        let previousStrokeStyle = this.context.strokeStyle;
-        this.context.strokeStyle = 'black';
+        let previousStrokeStyle = this.staticContext.strokeStyle;
+        this.staticContext.strokeStyle = 'black';
         this.drawLine(
             beam.startNode.x,
             beam.startNode.y,
@@ -291,12 +312,12 @@ class Canvas {
 
         this.drawWord(-2 + (beam.startNode.x + beam.endNode.x) / 2, -2 + (beam.startNode.y + beam.endNode.y) / 2, beam.id);
 
-        this.context.strokeStyle = previousStrokeStyle;
+        this.staticContext.strokeStyle = previousStrokeStyle;
     }
 
     drawNode(node) {
-        let previousStrokeStyle = this.context.strokeStyle;
-        this.context.strokeStyle = 'black';
+        let previousStrokeStyle = this.staticContext.strokeStyle;
+        this.staticContext.strokeStyle = 'black';
 
         switch (node.type) {
             case 'U1':
@@ -314,12 +335,12 @@ class Canvas {
 
         this.drawWord(node.x + 1, node.y + 1, node.id);
 
-        this.context.strokeStyle = previousStrokeStyle;
+        this.staticContext.strokeStyle = previousStrokeStyle;
     }
 
     drawForce(force) {
-        let previousStrokeStyle = this.context.strokeStyle;
-        this.context.strokeStyle = 'black';
+        let previousStrokeStyle = this.staticContext.strokeStyle;
+        this.staticContext.strokeStyle = 'black';
 
         // console.log(force);
 
@@ -343,13 +364,13 @@ class Canvas {
 
         this.drawWord(force.x + 1, force.y + 1, force.id);
 
-        this.context.strokeStyle = previousStrokeStyle;
+        this.staticContext.strokeStyle = previousStrokeStyle;
     }
 
     drawCircle(x, y, r) {
-        this.context.beginPath();
-        this.context.arc(this.xPtToPx(x), this.yPtToPx(y), this.ptToPx(r), 0, 2 * Math.PI);
-        this.context.stroke();
+        this.staticContext.beginPath();
+        this.staticContext.arc(this.xPtToPx(x), this.yPtToPx(y), this.ptToPx(r), 0, 2 * Math.PI);
+        this.staticContext.stroke();
     }
 
     drawJoint(x, y) {
@@ -382,27 +403,27 @@ class Canvas {
         this.drawLine(x + dX, y - dY, x, y);
     }
 
-    drawWord(x, y, text) {
-        this.context.fillText(text, this.xPtToPx(x), this.yPtToPx(y));
+    drawWord(x, y, text, context = this.staticContext) {
+        context.fillText(text, this.xPtToPx(x), this.yPtToPx(y));
     }
 
     drawWordReal(x, y, text) {
-        this.context.fillText(text, x, y);
+        this.staticContext.fillText(text, x, y);
     }
 
     // moving and zooming
 
     zoomIn(scale= 1.25){
-        this.w *= (1/scale);
-        this.h *= (1/scale);
-        this.ptInPx = this.canvas.width / this.w;
+        this.w = Math.round(this.w*(1/scale));
+        this.h = Math.round(this.h*(1/scale));
+        this.ptInPx = this.staticCanvas.width / this.w;
 
         this.drawSystem();
     }
     zoomOut(scale= 1.25){
-        this.w *= (scale);
-        this.h *= (scale);
-        this.ptInPx = this.canvas.width / this.w;
+        this.w = Math.round(this.w*(scale));
+        this.h = Math.round(this.h*(scale));
+        this.ptInPx = this.staticCanvas.width / this.w;
 
         this.drawSystem();
     }
@@ -421,11 +442,29 @@ class Canvas {
         return this.ptToPx(this.Cx + xPt);
     }
 
+    xPxToPt(xPx) {
+        return this.pxToPt(xPx)-this.Cx;
+    }
+
     yPtToPx(yPt) {
         return this.ptToPx(this.h - this.Cy - yPt);
     }
 
+    yPxToPt(yPx) {
+        return this.h - this.Cy - this.pxToPt(yPx);
+    }
+
     ptToPx(pt) {
         return Math.round(this.ptInPx * pt);
+    }
+
+    pxToPt(px) {
+        return Math.round(px / this.ptInPx);
+    }
+
+    setupEvents() {
+        this.dynamicCanvas.addEventListener('mousemove', e => {
+            this.drawCoordinatePosition('pointer', e.offsetX, e.offsetY);
+        });
     }
 }

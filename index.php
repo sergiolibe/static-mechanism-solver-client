@@ -30,8 +30,9 @@ $PROD_URL = $env_variables['PROD_URL'];
 
 <div style="display: inline-flex;">
     <div id="jsoneditor" style="width: 45vw; height: 80vh;"></div>
-    <div style="width: 45vw; height: 45vw;border: 1px solid black;">
-        <canvas id="canvas"></canvas>
+    <div style="width: 45vw; height: 45vw;border: 1px solid black;position:relative">
+        <canvas id="static-canvas" style="position:absolute;left:0;top:0;z-index:0;"></canvas>
+        <canvas id="dynamic-canvas" style="position:absolute;left:0;top:0;z-index:1;"></canvas>
     </div>
 
     <!--    <a href="" style="color: darkred"></a>-->
@@ -55,7 +56,7 @@ $PROD_URL = $env_variables['PROD_URL'];
 
     let backendCommunicator = new BackendCommunicator(prod_url);
 
-    let canvas = new Canvas('canvas');
+    let canvas = new Canvas({static:'static-canvas',dynamic:'dynamic-canvas'});
 
     let staticSystem = new StaticSystem(systemJsonData);
 
