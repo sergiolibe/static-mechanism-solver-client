@@ -19,14 +19,16 @@ $PROD_URL = $env_variables['PROD_URL'];
     Static Mechanism Solver
 </h4>
 
-<h3>
-    <button onclick="canvas.zoomIn()">+ZOOM</button>
-    <button onclick="canvas.zoomOut()">-ZOOM</button>
-    <button onclick="canvas.moveInX(10)">></button>
-    <button onclick="canvas.moveInX(-10)"><</button>
-    <button onclick="canvas.moveInY(10)">^</button>
-    <button onclick="canvas.moveInY(-10)">V</button>
-</h3>
+<h5>
+    Place the mouse inside the canvas and use:
+    [c center]
+    [i ZOOM+]
+    [o ZOOM-]
+    [← Move the model to the left]
+    [↑ Move the model up]
+    [→ Move the model to the right]
+    [↓ Move the model down]
+</h5>
 
 <div style="display: inline-flex;">
     <div id="jsoneditor" style="width: 45vw; height: 80vh;"></div>

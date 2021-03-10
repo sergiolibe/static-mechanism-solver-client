@@ -140,6 +140,9 @@ class Canvas {
         }
 
         let previousStrokeStyle = this.staticContext.strokeStyle;
+        let previousLineWidth = this.staticContext.lineWidth;
+
+        this.staticContext.lineWidth = 2;
         // console.log(listOfReactions);
         this.listOfReactions.forEach((reaction) => {
             if (reaction.type === 'U1' || reaction.type === 'U2') {
@@ -200,7 +203,7 @@ class Canvas {
 
         });
         this.staticContext.strokeStyle = previousStrokeStyle;
-
+        this.staticContext.lineWidth = previousLineWidth;
         this.drawGradient();
     }
 
@@ -415,14 +418,22 @@ class Canvas {
 
     zoomIn(scale= 1.25){
         this.w = Math.round(this.w*(1/scale));
+        this.Cx = Math.round(this.Cx*(1/scale));
+
         this.h = Math.round(this.h*(1/scale));
+        this.Cy = Math.round(this.Cy*(1/scale));
+
         this.ptInPx = this.staticCanvas.width / this.w;
 
         this.drawSystem();
     }
     zoomOut(scale= 1.25){
         this.w = Math.round(this.w*(scale));
+        this.Cx = Math.round(this.Cx*(scale));
+
         this.h = Math.round(this.h*(scale));
+        this.Cy = Math.round(this.Cy*(scale));
+
         this.ptInPx = this.staticCanvas.width / this.w;
 
         this.drawSystem();
@@ -435,7 +446,11 @@ class Canvas {
         this.Cy -= y;
         this.drawSystem();
     }
-
+    centerView() {
+        this.Cx = Math.round(this.w/2);
+        this.Cy = Math.round(this.h/2);
+        this.drawSystem();
+    }
     // conversion
 
     xPtToPx(xPt) {
@@ -464,7 +479,41 @@ class Canvas {
 
     setupEvents() {
         this.dynamicCanvas.addEventListener('mousemove', e => {
+            this.dynamicCanvas.tabIndex=0;
+            this.dynamicCanvas.focus();
             this.drawCoordinatePosition('pointer', e.offsetX, e.offsetY);
+        });
+
+        this.dynamicCanvas.addEventListener('mousedown', e => {
+           //
+        });
+
+        this.dynamicCanvas.addEventListener('keydown', (e) => {
+            let displacement = Math.round(this.w/10);
+            switch(e.keyCode){
+                case 37://arrow left
+                    this.moveInX(displacement);
+                    break;
+                case 38://arrow dup
+                    this.moveInY(-displacement);
+                    break;
+                case 39://arrow right
+                    this.moveInX(-displacement);
+                    break;
+                case 40://arrow down
+                    this.moveInY(displacement);
+                    break;
+                case 73://i: in
+                    this.zoomIn();
+                    break;
+                case 79://o: out
+                    this.zoomOut();
+                    break;
+                case 67://c: center
+                    this.centerView();
+                    break;
+
+            }
         });
     }
 }
