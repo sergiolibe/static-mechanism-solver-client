@@ -14,6 +14,8 @@ class Canvas {
     listOfReactions={};
     maxTension;
     maxCompression;
+    mouseMode = 'free';
+    activeElement=null;
 
     constructor(canvasNodes) {
         this.canvasNodes = canvasNodes;
@@ -303,6 +305,23 @@ class Canvas {
         this.dynamicContext.strokeStyle = previousStrokeStyle;
     }
 
+    highlightActiveElement() {
+        let previousStrokeStyle = this.dynamicContext.strokeStyle;
+        this.dynamicContext.strokeStyle = 'magenta';
+
+        this.dynamicContext.clearRect(10, this.dynamicCanvas.height-40, this.dynamicCanvas.width/2, 20);
+
+        if(this.activeElement === null)
+            return;
+
+        let text = 'Active Element: '+this.activeElement.id;
+
+        //
+        this.dynamicContext.fillText(text, 10, this.dynamicCanvas.height-30);
+        //
+        this.dynamicContext.strokeStyle = previousStrokeStyle;
+    }
+
     drawBeam(beam) {
         let previousStrokeStyle = this.staticContext.strokeStyle;
         this.staticContext.strokeStyle = 'black';
@@ -482,10 +501,38 @@ class Canvas {
             this.dynamicCanvas.tabIndex=0;
             this.dynamicCanvas.focus();
             this.drawCoordinatePosition('pointer', e.offsetX, e.offsetY);
+
+            if (this.mouseMode==='free') {
+                this.checkIfMouseOnTopOfElement(e.offsetX, e.offsetY);
+            } else if(this.mouseMode === 'movingNode') {
+                // console.log('movingNode ' + this.activeElement.id + ' to ' + 'X: ' + e.offsetX + 'px' + 'Y: ' + e.offsetY + 'px'+
+                //
+                // '. this is '+
+                //     'X: ' + this.xPxToPt(e.offsetX) + 'pt' + 'Y: ' + this.yPxToPt(e.offsetY) + 'pt'
+                // );
+
+                let nodeBeingMoved = this.staticSystem.data.nodes[this.activeElement.id];
+                nodeBeingMoved.x = this.xPxToPt(e.offsetX);
+                nodeBeingMoved.y = this.yPxToPt(e.offsetY);
+                this.updateSystemJson(this.staticSystem.data);
+
+            }
         });
 
         this.dynamicCanvas.addEventListener('mousedown', e => {
-           //
+            // console.log(e);
+            if (this.mouseMode === 'free') {
+                if (this.activeElement !== null) {
+                    this.mouseMode = 'movingNode';
+                    // console.log('movingNode');
+                }
+            }
+        });
+
+        this.dynamicCanvas.addEventListener('mouseup', e => {
+            if (this.mouseMode === 'movingNode') {
+                this.mouseMode = 'free';
+            }
         });
 
         this.dynamicCanvas.addEventListener('keydown', (e) => {
@@ -515,5 +562,25 @@ class Canvas {
 
             }
         });
+    }
+
+    updateSystemJson(json){}
+
+    checkIfMouseOnTopOfElement(x, y) {
+        this.highlightActiveElement();
+        for(let nodeId in this.staticSystem.nodes){
+            let node = this.staticSystem.nodes[nodeId];
+            let leeway = 5;
+
+            if (
+                Math.abs(this.xPtToPx(node.x)-x)<leeway
+                && Math.abs(this.yPtToPx(node.y)-y)<leeway
+            ) {
+                this.activeElement = node;
+                this.highlightActiveElement();
+                return;
+            }
+        }
+        this.activeElement = null;
     }
 }

@@ -1,6 +1,7 @@
 "use strict";
 
 class StaticSystem {
+    data;
     nodesData;
     beamsData;
     forcesData;
@@ -11,6 +12,7 @@ class StaticSystem {
 
     constructor(data) {
         // console.log(data);
+        this.data = data;
         this.nodesData = data.nodes;
         this.beamsData = data.beams;
         this.forcesData = data.forces;
@@ -35,24 +37,24 @@ class StaticSystem {
     }
 
     setup() {
-        this.nodesData.forEach((nodeData) => {
-            let node = new Node(nodeData);
+        Object.keys(this.nodesData).forEach((nodeId) => {
+            let node = new Node(nodeId, this.nodesData[nodeId]);
             this._nodes[node.id] = node;
         });
 
-        this.beamsData.forEach((beamData) => {
-            let beam = new Beam(beamData);
+        Object.keys(this.beamsData).forEach((beamId) => {
+            let beam = new Beam(beamId);
 
-            beam._startNode = this._nodes[beamData.startNode];
-            beam._endNode = this._nodes[beamData.endNode];
+            beam._startNode = this._nodes[this.beamsData[beamId].startNode];
+            beam._endNode = this._nodes[this.beamsData[beamId].endNode];
 
             this._beams[beam.id] = beam;
         });
 
-        this.forcesData.forEach((forceData) => {
-            let force = new Force(forceData);
+        Object.keys(this.forcesData).forEach((forceId) => {
+            let force = new Force(forceId, this.forcesData[forceId]);
 
-            force._node = this._nodes[forceData.node];
+            force._node = this._nodes[this.forcesData[forceId].node];
 
             this._forces[force.id] = force;
         });
@@ -84,8 +86,8 @@ class Node {
     y;
     type;
 
-    constructor(data) {
-        this.id = data.id;
+    constructor(id,data) {
+        this.id = id;
         this.x = data.x;
         this.y = data.y;
         this.type = data.type;
@@ -97,8 +99,8 @@ class Beam {
     _startNode;
     _endNode;
 
-    constructor(data) {
-        this._id = data.id;
+    constructor(id) {
+        this._id = id;
     }
 
     get id() {
@@ -129,8 +131,8 @@ class Force {
     type;
     _node;
 
-    constructor(data) {
-        this.id = data.id;
+    constructor(id, data) {
+        this.id = id;
         this.type = data.type;
         this.magnitude = data.magnitude;
         this.angle = data.angle;

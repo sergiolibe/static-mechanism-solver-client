@@ -90,6 +90,16 @@ $PROD_URL = $env_variables['PROD_URL'];
     let editor = new JSONEditor(jsonContainer, options);
 
     editor.set(systemJsonData);
-    // editor.expandAll();
+
+    canvas.updateSystemJson = function (json) {
+        editor.set(json);
+        staticSystem = new StaticSystem(json);
+        canvas.drawSystem(staticSystem);
+        backendCommunicator.submitSystem(json).then(response => {
+            canvas.drawReactions(response.list_of_reactions);
+        });
+    };
+
+
 </script>
 </html>
