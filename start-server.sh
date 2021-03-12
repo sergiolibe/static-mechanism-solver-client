@@ -1,8 +1,7 @@
 
 export $(cat .env | xargs)
 
-export ptag=pid-static-mechanism-solver-client;
-nohup php -S localhost:8085 -t public -- $ptag &> /dev/null &
+nohup php -S localhost:8085 -t public &> /dev/null &
 
 PHP_SERVER_PID=$!
 
