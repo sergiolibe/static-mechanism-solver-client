@@ -128,6 +128,8 @@ class Canvas {
             this.maxTension = -1;
             this.maxCompression = 1;
             this.listOfReactions.forEach((reaction) => {
+                if (reaction.type!=='BEAM')
+                    return;
                 // console.log('checking reaction: ',{maxTension:this.maxTension,maxCompression:this.maxCompression,rMagnitude:reaction.magnitude});
                 if (reaction.magnitude > 0) {
                     this.maxTension = reaction.magnitude > this.maxTension ?
