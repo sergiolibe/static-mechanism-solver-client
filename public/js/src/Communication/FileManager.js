@@ -38,9 +38,11 @@ class FileManager {
                 this._fileSelector.appendChild(optionNode);
             });
 
-            this._currentFile = this._fileSelector.value;
+            if (this._fileSelector.value !== '') {
+                this._currentFile = this._fileSelector.value;
+                this.fetchStaticSystem(this._currentFile);
+            }
             // console.log('received systems');
-            this.fetchStaticSystem(this._currentFile);
         });
     }
 
