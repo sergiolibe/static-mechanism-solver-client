@@ -49,6 +49,10 @@ class StaticCanvas extends BaseCanvas {
             this.drawReactions();
     }
 
+    resetReactions() {
+        this.listOfReactions = {};
+    }
+
     drawReactions(listOfReactions = null) {
         if (listOfReactions !== null) {
             this.listOfReactions = listOfReactions;

@@ -62,6 +62,7 @@ class App {
     _onChangeJSON = (json) => {
         this._jsonData = json;
         this._staticSystem.reBuild(this._jsonData);
+        // this._staticCanvas.resetReactions();
         this._staticCanvas.drawSystem();
         this._backendCommunicator.submitSystem(this._jsonData).then(response => {
             this._staticCanvas.drawReactions(response.list_of_reactions);
