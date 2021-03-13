@@ -1,10 +1,12 @@
 import BackendCommunicator from "./Communication/BackendCommunicator.js";
+import BackgroundCanvas from "./Drawing/BackgroundCanvas.js";
 import DynamicCanvas from "./Drawing/DynamicCanvas.js";
 import StaticCanvas from "./Drawing/StaticCanvas.js";
 import StaticSystem from "./Core/StaticSystem.js";
 
 class App {
     _jsonEditor;
+    _backgroundCanvas;
     _staticCanvas;
     _dynamicCanvas;
     _staticSystem;
@@ -18,9 +20,14 @@ class App {
         this._staticSystem = new StaticSystem(this._jsonData);
 
         this._backendCommunicator = new BackendCommunicator(config.backend_url);
+        this.initializeBackgroundCanvas(config.background_canvas_id);
         this.initializeStaticCanvas(config.static_canvas_id);
         this.initializeDynamicCanvas(config.dynamic_canvas_id)
         this.solveSystem();
+    }
+
+    initializeBackgroundCanvas(backgroundCanvasId) {
+        this._backgroundCanvas = new BackgroundCanvas(backgroundCanvasId);
     }
 
     initializeStaticCanvas(staticCanvasId) {
@@ -32,6 +39,7 @@ class App {
     initializeDynamicCanvas(dynamicCanvasId) {
         this._dynamicCanvas = new DynamicCanvas(dynamicCanvasId);
         this._dynamicCanvas.staticSystem = this._staticSystem;
+        this._dynamicCanvas.backgroundCanvas = this._backgroundCanvas;
         this._dynamicCanvas.staticCanvas = this._staticCanvas;
         this._dynamicCanvas.updateSystemJson = this._onChangeJSON;
     }

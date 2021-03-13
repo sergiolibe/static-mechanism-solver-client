@@ -72,6 +72,10 @@ class BaseCanvas {
         this.context.fillRect(xT, yT, wT, hT);
     }
 
+    fillRectReal(x, y, w, h) {
+        this.context.fillRect(x, y, w, h);
+    }
+
     drawCircle(x, y, r) {
         this.context.beginPath();
         this.context.arc(this.xPtToPx(x), this.yPtToPx(y), this.ptToPx(r), 0, 2 * Math.PI);

@@ -1,3 +1,4 @@
+import BackgroundCanvas from "./BackgroundCanvas.js";
 import BaseCanvas from "./BaseCanvas.js";
 import StaticCanvas from "./StaticCanvas.js";
 import StaticSystem from "../Core/StaticSystem.js";
@@ -5,6 +6,7 @@ import StaticSystem from "../Core/StaticSystem.js";
 class DynamicCanvas extends BaseCanvas {
     _staticSystem;
     _staticCanvas;
+    _backgroundCanvas;
     mouseMode = 'free';
     activeElement = null;
 
@@ -25,6 +27,13 @@ class DynamicCanvas extends BaseCanvas {
             this._staticCanvas = staticCanvas;
         else
             throw new Error('Expected instance of StaticCanvas, get: ' + staticCanvas)
+    }
+
+    set backgroundCanvas(backgroundCanvas) {
+        if (backgroundCanvas instanceof BackgroundCanvas)
+            this._backgroundCanvas = backgroundCanvas;
+        else
+            throw new Error('Expected instance of BackgroundCanvas, get: ' + backgroundCanvas)
     }
 
     drawCoordinatePosition(word, x, y) {
@@ -114,6 +123,16 @@ class DynamicCanvas extends BaseCanvas {
         this._staticCanvas.ptInPx = this.ptInPx;
     }
 
+    // Actions
+
+    print() {
+        this.context.drawImage(this._backgroundCanvas.canvasInstance, 0, 0);
+        this.context.drawImage(this._staticCanvas.canvasInstance, 0, 0);
+        let canvasUrl = this.canvasInstance.toDataURL();
+        console.log(canvasUrl);
+        window.open(canvasUrl,'_blank');
+    }
+
     setupEvents() {
         this.canvasInstance.addEventListener('mousemove', e => {
             this.canvasInstance.tabIndex = 0;
@@ -168,14 +187,17 @@ class DynamicCanvas extends BaseCanvas {
                 case 40://arrow down
                     this.moveInY(displacement);
                     break;
+                case 67://c: center
+                    this.centerView();
+                    break;
                 case 73://i: in
                     this.zoomIn();
                     break;
                 case 79://o: out
                     this.zoomOut();
                     break;
-                case 67://c: center
-                    this.centerView();
+                case 80://p: print
+                    this.print();
                     break;
 
             }
