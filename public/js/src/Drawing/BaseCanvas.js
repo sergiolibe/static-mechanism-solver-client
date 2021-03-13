@@ -82,6 +82,13 @@ class BaseCanvas {
         this.context.stroke();
     }
 
+    drawFilledCircle(x, y, r) {
+        this.context.beginPath();
+        this.context.arc(this.xPtToPx(x), this.yPtToPx(y), this.ptToPx(r), 0, 2 * Math.PI);
+        this.context.fill();
+        this.context.stroke();
+    }
+
     drawWord(x, y, text) {
         this.context.fillText(text, this.xPtToPx(x), this.yPtToPx(y));
     }

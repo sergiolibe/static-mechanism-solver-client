@@ -56,15 +56,18 @@ class DynamicCanvas extends BaseCanvas {
         let previousFillStyle = this.context.fillStyle;
         this.context.fillStyle = 'magenta';
 
-        this.context.clearRect(10, this.canvasInstance.height - 40, this.canvasInstance.width / 2, 20);
+        this.context.clearRect(0, 0, this.canvasInstance.width, this.canvasInstance.height);
 
         if (this.activeElement === null)
             return;
 
         let text = '<>';
-        if (this.activeElement instanceof Node)
+        if (this.activeElement instanceof Node) {
+            this.drawSelectedNode(this.activeElement);
             text = 'Node: ' + this.activeElement.id;
+        }
         else if (this.activeElement instanceof Beam) {
+            this.drawSelectedBeam(this.activeElement);
             let reactionValue = NaN;
             // console.log(this._staticCanvas.listOfReactions);
             this._staticCanvas.listOfReactions.forEach((reaction) => {
@@ -282,6 +285,39 @@ class DynamicCanvas extends BaseCanvas {
         }
 
         this.canvasInstance.style.cursor = cursorStyle;
+    }
+
+    // Drawing
+
+    drawSelectedBeam(beam) {
+        let previousStrokeStyle = this.context.strokeStyle;
+        let previousLineWidth = this.context.lineWidth;
+
+        this.context.strokeStyle = '#00ff0022';
+        this.context.lineWidth = 10;
+
+        this.drawLine(
+            beam.startNode.x,
+            beam.startNode.y,
+            beam.endNode.x,
+            beam.endNode.y
+        )
+
+        this.context.strokeStyle = previousStrokeStyle;
+        this.context.lineWidth = previousLineWidth;
+    }
+
+    drawSelectedNode(node) {
+        let previousFillStyle = this.context.fillStyle;
+        let previousStrokeStyle = this.context.strokeStyle;
+
+        this.context.strokeStyle = '#00ff0022';
+        this.context.fillStyle = '#00ff0022';
+
+        this.drawFilledCircle(node.x, node.y, 3);
+
+        this.context.strokeStyle = previousStrokeStyle;
+        this.context.fillStyle = previousFillStyle;
     }
 }
 
