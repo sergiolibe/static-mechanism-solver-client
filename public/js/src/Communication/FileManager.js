@@ -40,6 +40,24 @@ class FileManager {
 
             this._currentFile = this._fileSelector.value;
             // console.log('received systems');
+            this.fetchStaticSystem(this._currentFile);
+        });
+    }
+
+    fetchStaticSystem(staticSystemName) {
+        this._backendCommunicator.fetchStaticSystem(staticSystemName).then(response => {
+            if (response.success === false) {
+                this.showInfo('Failed Fetching ' + staticSystemName)
+                throw new Error('Failed uploading static system');
+            }
+
+            this.showInfo('Loaded ' + staticSystemName)
+
+            this._currentFile = this._fileSelector.value;
+
+            // console.log(response.system_data);
+            this.updateSystemJson(response.system_data, 'file-manager');
+
         });
     }
 
@@ -88,20 +106,7 @@ class FileManager {
     onChangeSelector = (e) => {
         let staticSystemName = e.target.value;
         this.showInfo('Fetching ' + staticSystemName)
-        this._backendCommunicator.fetchStaticSystem(staticSystemName).then(response => {
-            if (response.success === false) {
-                this.showInfo('Failed Fetching ' + staticSystemName)
-                throw new Error('Failed uploading static system');
-            }
-
-            this.showInfo('Loaded ' + staticSystemName)
-
-            this._currentFile = this._fileSelector.value;
-
-            // console.log(response.system_data);
-            this.updateSystemJson(response.system_data, 'file-manager');
-
-        });
+        this.fetchStaticSystem(staticSystemName);
     }
 
     updateSystemJson(json, origin) {
