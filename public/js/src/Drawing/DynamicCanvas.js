@@ -1,6 +1,7 @@
 import BackgroundCanvas from "./BackgroundCanvas.js";
 import BaseCanvas from "./BaseCanvas.js";
 import Beam from "./../Core/Beam.js";
+import FileManager from "./../Communication/FileManager.js";
 import Geometry from "./../Utils/Geometry.js";
 import Node from "./../Core/Node.js";
 import StaticCanvas from "./StaticCanvas.js";
@@ -10,6 +11,7 @@ class DynamicCanvas extends BaseCanvas {
     _staticSystem;
     _staticCanvas;
     _backgroundCanvas;
+    _fileManager;
     mouseMode = 'free';
     activeElement = null;
 
@@ -37,6 +39,13 @@ class DynamicCanvas extends BaseCanvas {
             this._backgroundCanvas = backgroundCanvas;
         else
             throw new Error('Expected instance of BackgroundCanvas, get: ' + backgroundCanvas)
+    }
+
+    set fileManager(fileManager) {
+        if (fileManager instanceof FileManager)
+            this._fileManager = fileManager;
+        else
+            throw new Error('Expected instance of FileManager, get: ' + fileManager)
     }
 
     drawCoordinatePosition(word, x, y) {
@@ -226,6 +235,14 @@ class DynamicCanvas extends BaseCanvas {
                     break;
                 case 80://p: print
                     this.print();
+                    break;
+                case 83://s: save current file (update)
+                    this._fileManager.updateCurrentStaticSystem(this._staticSystem.data);
+                    break;
+                    break;
+                case 85://u: upload new file
+                    let fileName = prompt("Enter file name to upload", "Mechanism_"+Math.floor(Date.now() / 1000));
+                    this._fileManager.uploadStaticSystem(this._staticSystem.data, fileName);
                     break;
 
             }

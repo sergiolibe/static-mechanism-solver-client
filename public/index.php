@@ -11,11 +11,14 @@
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.13.0/css/all.css">
 </head>
 <body>
-<h4>
+<h3>
     Static Mechanism Solver
+</h3>
+<h4>
+    Select File <i class="red fa fa-file"></i>
+    <select name="selected_file" id="file-selector"></select>
 </h4>
-
-<h5>
+<h4>
     Place the mouse inside the canvas and use:
     c: <i class="purple fa fa-crosshairs"></i>,
     i: <i class="purple fa fa-search-plus"></i>,
@@ -24,8 +27,14 @@
     <i class="blue fa fa-arrow-up"></i>,
     <i class="blue fa fa-arrow-right"></i>,
     <i class="blue fa fa-arrow-down"></i>,
-    p: <i class="green fa fa-print"></i>
-</h5>
+    p: <i class="green fa fa-print"></i>,
+    s: <i class="green fa fa-save"></i>,
+    u: <i class="green fa fa-upload"></i>
+    <span style="border:1px solid black;padding: 10px">
+        <i class="fa fa-info"></i>
+        <span id="info-container">/</span>
+    </span>
+</h4>
 
 <div style="display: inline-flex;">
     <div id="jsoneditor" style="width: 45vw; height: 80vh;"></div>
