@@ -14,6 +14,7 @@ class DynamicCanvas extends BaseCanvas {
     _fileManager;
     mouseMode = 'free';
     activeElement = null;
+    referencePoint = {};
 
     constructor(canvasNodeId) {
         super(canvasNodeId);
@@ -74,8 +75,7 @@ class DynamicCanvas extends BaseCanvas {
         if (this.activeElement instanceof Node) {
             this.drawSelectedNode(this.activeElement);
             text = 'Node: ' + this.activeElement.id;
-        }
-        else if (this.activeElement instanceof Beam) {
+        } else if (this.activeElement instanceof Beam) {
             this.drawSelectedBeam(this.activeElement);
             let reactionValue = NaN;
             // console.log(this._staticCanvas.listOfReactions);
@@ -174,29 +174,68 @@ class DynamicCanvas extends BaseCanvas {
                 if (this.activeElement === null || this.activeElement instanceof Beam)
                     this.checkIfMouseOnTopBeam(e.offsetX, e.offsetY);
             } else if (this.mouseMode === 'movingNode') {
-                // console.log('movingNode ' + this.activeElement.id + ' to ' + 'X: ' + e.offsetX + 'px' + 'Y: ' + e.offsetY + 'px'+
-                //
-                // '. this is '+
-                //     'X: ' + this.xPxToPt(e.offsetX) + 'pt' + 'Y: ' + this.yPxToPt(e.offsetY) + 'pt'
-                // );
 
                 let nodeBeingMoved = this._staticSystem.data.nodes[this.activeElement.id];
                 nodeBeingMoved.x = this.xPxToPt(e.offsetX);
                 nodeBeingMoved.y = this.yPxToPt(e.offsetY);
                 this.updateSystemJson(this._staticSystem.data);
 
+            } else if (this.mouseMode === 'movingCanvas') {
+                let previousStrokeStyle = this.context.strokeStyle;
+
+                this.context.strokeStyle = 'red';
+
+                this.context.clearRect(0, 0, this.canvasInstance.width, this.canvasInstance.height);
+                this.drawLineReal(this.referencePoint.x, this.referencePoint.y, e.offsetX, e.offsetY);
+
+                this.context.strokeStyle = previousStrokeStyle;
             }
 
             this.drawCoordinatePosition('pointer', e.offsetX, e.offsetY);
         });
 
+        this.canvasInstance.addEventListener('wheel', e => {
+            let zoomingIn = e.deltaY > 0;
+
+            if (zoomingIn) {
+                this.zoomIn();
+
+                let displacement = Math.round(this.w / 10);
+
+                let width = this.canvasInstance.width;
+                let height = this.canvasInstance.height;
+
+                let wheelX = e.offsetX;
+                let wheelY = e.offsetY;
+
+                if (wheelX > (width * 2 / 3))
+                    this.moveInX(displacement);
+                if (wheelX < (width * 1 / 3))
+                    this.moveInX(-displacement);
+
+                if (wheelY < (height * 1 / 3))
+                    this.moveInY(displacement);
+
+                if (wheelY > (height * 2 / 3))
+                    this.moveInY(-displacement);
+            } else {
+                this.zoomOut();
+            }
+        });
+
         this.canvasInstance.addEventListener('mousedown', e => {
-            // console.log(e);
+
             if (this.mouseMode === 'free') {
-                if (this.activeElement !== null) {
-                    if (this.activeElement instanceof Node)
-                        this.mouseMode = 'movingNode';
+                let whichMouse = e.button;
+                if (whichMouse === 0) {//left click
+                    if (this.activeElement !== null) {
+                        if (this.activeElement instanceof Node)
+                            this.mouseMode = 'movingNode';
                         // console.log('movingNode');
+                    }
+                } else if (whichMouse === 1) {//wheel pressed
+                    this.referencePoint = {x: e.offsetX, y: e.offsetY};
+                    this.mouseMode = 'movingCanvas';
                 }
             }
             this.updateCursor();
@@ -204,6 +243,11 @@ class DynamicCanvas extends BaseCanvas {
 
         this.canvasInstance.addEventListener('mouseup', e => {
             if (this.mouseMode === 'movingNode') {
+                this.mouseMode = 'free';
+            } else if (this.mouseMode === 'movingCanvas') {
+                this.moveInX(this.xPxToPt(this.referencePoint.x)-this.xPxToPt(e.offsetX));
+                this.moveInY(this.yPxToPt(this.referencePoint.y)-this.yPxToPt(e.offsetY));
+                this.referencePoint = {};
                 this.mouseMode = 'free';
             }
             this.updateCursor();
@@ -241,7 +285,7 @@ class DynamicCanvas extends BaseCanvas {
                     break;
                     break;
                 case 85://u: upload new file
-                    let fileName = prompt("Enter file name to upload", "Mechanism_"+Math.floor(Date.now() / 1000));
+                    let fileName = prompt("Enter file name to upload", "Mechanism_" + Math.floor(Date.now() / 1000));
                     this._fileManager.uploadStaticSystem(this._staticSystem.data, fileName);
                     break;
 
@@ -258,7 +302,7 @@ class DynamicCanvas extends BaseCanvas {
             let node = this._staticSystem.nodes[nodeId];
 
             if (
-                Geometry.pointIsOnPoint(this.xPtToPx(node.x), this.yPtToPx(node.y),x, y)
+                Geometry.pointIsOnPoint(this.xPtToPx(node.x), this.yPtToPx(node.y), x, y)
             ) {
                 this.activeElement = node;
                 this.highlightActiveElement();
@@ -301,6 +345,8 @@ class DynamicCanvas extends BaseCanvas {
 
         } else if (this.mouseMode === 'movingNode') {
             cursorStyle = 'grabbing';
+        } else if (this.mouseMode === 'movingCanvas') {
+            cursorStyle = 'move';
         }
 
         this.canvasInstance.style.cursor = cursorStyle;

@@ -42,6 +42,13 @@ class BaseCanvas {
         this.context.stroke();
     }
 
+    drawLineReal(x, y, xf, yf) {
+        this.context.beginPath();
+        this.context.moveTo(x, y);
+        this.context.lineTo(xf, yf);
+        this.context.stroke();
+    }
+
     drawArrow(x, y, xf, yf) {
         this.drawLine(x, y, xf, yf);
 

@@ -20,16 +20,16 @@
 </h4>
 <h4>
     Place the mouse inside the canvas and use:
-    c: <i class="purple fa fa-crosshairs"></i>,
-    i: <i class="purple fa fa-search-plus"></i>,
-    o: <i class="purple fa fa-search-minus"></i>,
-    <i class="blue fa fa-arrow-left"></i>,
+    [c: <i class="purple fa fa-crosshairs"></i>,
+    i/wheel-up: <i class="purple fa fa-search-plus"></i>,
+    o/wheel-down: <i class="purple fa fa-search-minus"></i>]
+    [wheel-click or <i class="blue fa fa-arrow-left"></i>,
     <i class="blue fa fa-arrow-up"></i>,
     <i class="blue fa fa-arrow-right"></i>,
-    <i class="blue fa fa-arrow-down"></i>,
-    p: <i class="green fa fa-print"></i>,
+    <i class="blue fa fa-arrow-down"></i>]
+    [p: <i class="green fa fa-print"></i>,
     s: <i class="green fa fa-save"></i>,
-    u: <i class="green fa fa-upload"></i>
+    u: <i class="green fa fa-upload"></i>]
     <span style="border:1px solid black;padding: 10px">
         <i class="fa fa-info"></i>
         <span id="info-container">/</span>
