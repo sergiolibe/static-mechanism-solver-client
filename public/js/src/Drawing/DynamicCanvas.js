@@ -6,7 +6,7 @@ class DynamicCanvas extends BaseCanvas {
     _staticSystem;
     _staticCanvas;
     mouseMode = 'free';
-    activeElement=null;
+    activeElement = null;
 
     constructor(canvasNodeId) {
         super(canvasNodeId);
@@ -67,6 +67,7 @@ class DynamicCanvas extends BaseCanvas {
 
         this.ptInPx = this.canvasInstance.width / this.w;
 
+        this.syncDimensionsBetweenCanvas();
         this._staticCanvas.drawSystem();
     }
 
@@ -79,23 +80,38 @@ class DynamicCanvas extends BaseCanvas {
 
         this.ptInPx = this.canvasInstance.width / this.w;
 
+        this.syncDimensionsBetweenCanvas();
         this._staticCanvas.drawSystem();
     }
 
     moveInX(x = 10) {
         this.Cx -= x;
+
+        this.syncDimensionsBetweenCanvas();
         this._staticCanvas.drawSystem();
     }
 
     moveInY(y = 10) {
         this.Cy -= y;
+
+        this.syncDimensionsBetweenCanvas();
         this._staticCanvas.drawSystem();
     }
 
     centerView() {
         this.Cx = Math.round(this.w / 2);
         this.Cy = Math.round(this.h / 2);
+
+        this.syncDimensionsBetweenCanvas();
         this._staticCanvas.drawSystem();
+    }
+
+    syncDimensionsBetweenCanvas() {
+        this._staticCanvas.w = this.w;
+        this._staticCanvas.Cx = this.Cx;
+        this._staticCanvas.h = this.h;
+        this._staticCanvas.Cy = this.Cy;
+        this._staticCanvas.ptInPx = this.ptInPx;
     }
 
     setupEvents() {

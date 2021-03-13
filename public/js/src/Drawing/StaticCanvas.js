@@ -4,8 +4,8 @@ import StaticSystem from "../Core/StaticSystem.js";
 class StaticCanvas extends BaseCanvas {
     _staticSystem = null;
     listOfReactions = {};
-    maxTension=-1;
-    maxCompression=1;
+    maxTension = -1;
+    maxCompression = 1;
 
     set staticSystem(staticSystem) {
         if (staticSystem instanceof StaticSystem)
@@ -270,28 +270,28 @@ class StaticCanvas extends BaseCanvas {
 
     interpolateColor(value) {
         let colors = {
-            "red": {value: 0, arrayColor: [255, 0, 0]},
-            "yellow": {value: 0.49, arrayColor: [255, 255, 0]},
-            "black": {value: 0.5, arrayColor: [0, 0, 0]},
-            "cyan": {value: 0.51, arrayColor: [0, 255, 255]},
-            "blue": {value: 1, arrayColor: [0, 0, 255]}
+            red: {value: 0, arrayColor: [255, 0, 0]},
+            yellow: {value: 0.49, arrayColor: [255, 255, 0]},
+            black: {value: 0.5, arrayColor: [0, 0, 0]},
+            cyan: {value: 0.51, arrayColor: [0, 255, 255]},
+            blue: {value: 1, arrayColor: [0, 0, 255]}
         };
 
         let colorNames = Object.keys(colors)
 
-        let colorLeft = [];
-        let colorRight = [];
+        let colorLeft = colors.red;
+        let colorRight = colors.red;
 
         for (let color of colorNames) {
             //console.log('interpolateColor: ',{value:value,color:color});
             let colorInfo = colors[color];
-            colorRight = colorInfo.arrayColor;
+            colorRight = colorInfo;
             if (value === colorInfo.value) {
                 //console.log('value = colorValue', {value:value,colorValue:colorInfo.value});
                 return this.arrayColorToRgb(colorInfo.arrayColor);
             } else if (value > colorInfo.value) {
                 //console.log('value > colorValue', {value:value,colorValue:colorInfo.value});
-                colorLeft = colorInfo.arrayColor;
+                colorLeft = colorInfo;
                 // return this.arrayColorToRgb(colorInfo.arrayColor);
             } else {
                 //console.log('value < colorValue', {value:value,colorValue:colorInfo.value});
@@ -299,7 +299,9 @@ class StaticCanvas extends BaseCanvas {
             }
         }
 
-        return this.mapColor(colorLeft, colorRight, value);
+
+        let relativeWeight = (value - colorLeft.value) / (colorRight.value - colorLeft.value);
+        return this.mapColor(colorLeft.arrayColor, colorRight.arrayColor, relativeWeight);
     }
 
     arrayColorToRgb(color) {
@@ -310,8 +312,8 @@ class StaticCanvas extends BaseCanvas {
     mapColor(color1, color2, weight) {
         //console.log('mapping color',{color1:color1,color2:color2,});
 
-        let w1 = weight;
-        let w2 = 1 - w1;
+        let w1 = 1 - weight;
+        let w2 = weight;
 
         return this.arrayColorToRgb([
             Math.round(color1[0] * w1 + color2[0] * w2),

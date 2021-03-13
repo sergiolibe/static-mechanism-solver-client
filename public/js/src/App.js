@@ -16,11 +16,11 @@ class App {
 
         this.initializeJsonEditor(config.json_editor_id);
         this._staticSystem = new StaticSystem(this._jsonData);
-        ;
+
         this._backendCommunicator = new BackendCommunicator(config.backend_url);
         this.initializeStaticCanvas(config.static_canvas_id);
         this.initializeDynamicCanvas(config.dynamic_canvas_id)
-        this.firstCall();
+        this.solveSystem();
     }
 
     initializeStaticCanvas(staticCanvasId) {
@@ -61,19 +61,18 @@ class App {
 
     _onChangeJSON = (json) => {
         this._jsonData = json;
+        this._jsonEditor.set(this._jsonData);
         this._staticSystem.reBuild(this._jsonData);
         // this._staticCanvas.resetReactions();
         this._staticCanvas.drawSystem();
-        this._backendCommunicator.submitSystem(this._jsonData).then(response => {
-            this._staticCanvas.drawReactions(response.list_of_reactions);
-        })
+        this.solveSystem();
     }
 
     notifyError(e) {
         console.error(e.message);
     }
 
-    firstCall() {
+    solveSystem() {
         this._backendCommunicator.submitSystem(this._jsonData).then(response => {
             this._staticCanvas.drawReactions(response.list_of_reactions);
         });
