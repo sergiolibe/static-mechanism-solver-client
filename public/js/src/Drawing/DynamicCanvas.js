@@ -74,7 +74,7 @@ class DynamicCanvas extends BaseCanvas {
         let text = '<>';
         if (this.activeElement instanceof Node) {
             this.drawSelectedNode(this.activeElement);
-            text = 'Node: ' + this.activeElement.id;
+            text = 'Node: ' + this.activeElement.id + ' [ x: ' + this.activeElement.x + ' , y: ' + this.activeElement.y + ' ]';
         } else if (this.activeElement instanceof Beam) {
             this.drawSelectedBeam(this.activeElement);
             let reactionValue = NaN;
@@ -86,7 +86,7 @@ class DynamicCanvas extends BaseCanvas {
                 )
                     reactionValue = reaction.magnitude;
             });
-            text = 'Beam: ' + this.activeElement.id + ' [ ' + reactionValue + ' ]';
+            text = 'Beam: ' + this.activeElement.id + ' [ F: ' + reactionValue + ' ]';
         }
 
         //
