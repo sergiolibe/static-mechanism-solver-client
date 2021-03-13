@@ -147,17 +147,17 @@ class DynamicCanvas extends BaseCanvas {
     // Actions
 
     print() {
-        this.context.drawImage(this._backgroundCanvas.canvasInstance, 0, 0);
-        this.context.drawImage(this._staticCanvas.canvasInstance, 0, 0);
-        let canvasUrl = this.canvasInstance.toDataURL();
+        this._backgroundCanvas.context.drawImage(this._staticCanvas.canvasInstance, 0, 0);
+        this._backgroundCanvas.context.drawImage(this.canvasInstance, 0, 0);
+        let canvasUrl = this._backgroundCanvas.canvasInstance.toDataURL();
         window.open(canvasUrl, '_blank');
+        this._backgroundCanvas.paintBackground();
     }
 
     setupEvents() {
         this.canvasInstance.addEventListener('mousemove', e => {
             this.canvasInstance.tabIndex = 0;
             this.canvasInstance.focus();
-            this.drawCoordinatePosition('pointer', e.offsetX, e.offsetY);
 
             if (this.mouseMode === 'free') {
                 this.checkIfMouseOnTopOfElement(e.offsetX, e.offsetY);
@@ -177,6 +177,8 @@ class DynamicCanvas extends BaseCanvas {
                 this.updateSystemJson(this._staticSystem.data);
 
             }
+
+            this.drawCoordinatePosition('pointer', e.offsetX, e.offsetY);
         });
 
         this.canvasInstance.addEventListener('mousedown', e => {
