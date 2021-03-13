@@ -1,7 +1,10 @@
 import BackgroundCanvas from "./BackgroundCanvas.js";
 import BaseCanvas from "./BaseCanvas.js";
+import Beam from "./../Core/Beam.js";
+import Geometry from "./../Utils/Geometry.js";
+import Node from "./../Core/Node.js";
 import StaticCanvas from "./StaticCanvas.js";
-import StaticSystem from "../Core/StaticSystem.js";
+import StaticSystem from "./../Core/StaticSystem.js";
 
 class DynamicCanvas extends BaseCanvas {
     _staticSystem;
@@ -37,32 +40,47 @@ class DynamicCanvas extends BaseCanvas {
     }
 
     drawCoordinatePosition(word, x, y) {
-        let previousStrokeStyle = this.context.strokeStyle;
-        this.context.strokeStyle = 'black';
+        let previousFillStyle = this.context.fillStyle;
+        this.context.fillStyle = 'black';
         let text = word + ' ( ' + this.xPxToPt(x) + ' , ' + this.yPxToPt(y) + ' )';
 
         this.context.clearRect(10, this.canvasInstance.height - 20, this.canvasInstance.width / 2, 20);
 
         this.drawWordReal(10, this.canvasInstance.height - 10, text);
 
-        this.context.strokeStyle = previousStrokeStyle;
+        this.context.fillStyle = previousFillStyle;
     }
 
     highlightActiveElement() {
-        let previousStrokeStyle = this.context.strokeStyle;
-        this.context.strokeStyle = 'magenta';
+        this.updateCursor();
+        let previousFillStyle = this.context.fillStyle;
+        this.context.fillStyle = 'magenta';
 
         this.context.clearRect(10, this.canvasInstance.height - 40, this.canvasInstance.width / 2, 20);
 
         if (this.activeElement === null)
             return;
 
-        let text = 'Active Element: ' + this.activeElement.id;
+        let text = '<>';
+        if (this.activeElement instanceof Node)
+            text = 'Node: ' + this.activeElement.id;
+        else if (this.activeElement instanceof Beam) {
+            let reactionValue = NaN;
+            // console.log(this._staticCanvas.listOfReactions);
+            this._staticCanvas.listOfReactions.forEach((reaction) => {
+                if (
+                    reaction.type === 'BEAM'
+                    && reaction.referenceId === this.activeElement.id
+                )
+                    reactionValue = reaction.magnitude;
+            });
+            text = 'Beam: ' + this.activeElement.id + ' [ ' + reactionValue + ' ]';
+        }
 
         //
         this.drawWordReal(10, this.canvasInstance.height - 30, text);
         //
-        this.context.strokeStyle = previousStrokeStyle;
+        this.context.fillStyle = previousFillStyle;
     }
 
     // moving and zooming
@@ -129,8 +147,7 @@ class DynamicCanvas extends BaseCanvas {
         this.context.drawImage(this._backgroundCanvas.canvasInstance, 0, 0);
         this.context.drawImage(this._staticCanvas.canvasInstance, 0, 0);
         let canvasUrl = this.canvasInstance.toDataURL();
-        console.log(canvasUrl);
-        window.open(canvasUrl,'_blank');
+        window.open(canvasUrl, '_blank');
     }
 
     setupEvents() {
@@ -141,6 +158,9 @@ class DynamicCanvas extends BaseCanvas {
 
             if (this.mouseMode === 'free') {
                 this.checkIfMouseOnTopOfElement(e.offsetX, e.offsetY);
+
+                if (this.activeElement === null || this.activeElement instanceof Beam)
+                    this.checkIfMouseOnTopBeam(e.offsetX, e.offsetY);
             } else if (this.mouseMode === 'movingNode') {
                 // console.log('movingNode ' + this.activeElement.id + ' to ' + 'X: ' + e.offsetX + 'px' + 'Y: ' + e.offsetY + 'px'+
                 //
@@ -160,16 +180,19 @@ class DynamicCanvas extends BaseCanvas {
             // console.log(e);
             if (this.mouseMode === 'free') {
                 if (this.activeElement !== null) {
-                    this.mouseMode = 'movingNode';
-                    // console.log('movingNode');
+                    if (this.activeElement instanceof Node)
+                        this.mouseMode = 'movingNode';
+                        // console.log('movingNode');
                 }
             }
+            this.updateCursor();
         });
 
         this.canvasInstance.addEventListener('mouseup', e => {
             if (this.mouseMode === 'movingNode') {
                 this.mouseMode = 'free';
             }
+            this.updateCursor();
         });
 
         this.canvasInstance.addEventListener('keydown', (e) => {
@@ -211,11 +234,9 @@ class DynamicCanvas extends BaseCanvas {
         this.highlightActiveElement();
         for (let nodeId in this._staticSystem.nodes) {
             let node = this._staticSystem.nodes[nodeId];
-            let leeway = 5;
 
             if (
-                Math.abs(this.xPtToPx(node.x) - x) < leeway
-                && Math.abs(this.yPtToPx(node.y) - y) < leeway
+                Geometry.pointIsOnPoint(this.xPtToPx(node.x), this.yPtToPx(node.y),x, y)
             ) {
                 this.activeElement = node;
                 this.highlightActiveElement();
@@ -223,6 +244,44 @@ class DynamicCanvas extends BaseCanvas {
             }
         }
         this.activeElement = null;
+    }
+
+    checkIfMouseOnTopBeam(x, y) {
+        this.highlightActiveElement();
+        for (let beamId in this._staticSystem.beams) {
+            let beam = this._staticSystem.beams[beamId];
+
+            if (
+                Geometry.pointIsInLineBetweenPoints(
+                    x, y,
+                    this.xPtToPx(beam.startNode.x), this.yPtToPx(beam.startNode.y),
+                    this.xPtToPx(beam.endNode.x), this.yPtToPx(beam.endNode.y),
+                )
+            ) {
+                this.activeElement = beam;
+                this.highlightActiveElement();
+                return;
+            }
+        }
+        this.activeElement = null;
+    }
+
+    updateCursor() {
+        let cursorStyle = 'default';
+        if (this.mouseMode === 'free') {
+
+            if (this.activeElement === null)
+                cursorStyle = 'default';
+            else if (this.activeElement instanceof Node)
+                cursorStyle = 'grab';
+            else if (this.activeElement instanceof Beam)
+                cursorStyle = 'help';
+
+        } else if (this.mouseMode === 'movingNode') {
+            cursorStyle = 'grabbing';
+        }
+
+        this.canvasInstance.style.cursor = cursorStyle;
     }
 }
 

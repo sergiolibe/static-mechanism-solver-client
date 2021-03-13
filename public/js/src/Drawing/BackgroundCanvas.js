@@ -8,7 +8,7 @@ class BackgroundCanvas extends BaseCanvas {
         this.paintBackground()
     }
 
-    paintBackground(backgroundColor = '#ddffee') {
+    paintBackground(backgroundColor = '#f8f8ff') {
 
         let previousFillStyle = this.context.fillStyle;
 
