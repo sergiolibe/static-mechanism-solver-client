@@ -1,4 +1,6 @@
-"use strict";
+import Beam from "./Beam.js";
+import Force from "./Force.js";
+import Node from "./Node.js";
 
 class StaticSystem {
     data;
@@ -11,13 +13,45 @@ class StaticSystem {
     _forces = {};
 
     constructor(data) {
+        this._build(data);
+    }
+
+    _build(data) {
         // console.log(data);
         this.data = data;
-        this.nodesData = data.nodes;
-        this.beamsData = data.beams;
-        this.forcesData = data.forces;
 
-        this.setup()
+        if (data.hasOwnProperty('nodes'))
+            this.nodesData = data.nodes;
+        else
+            throw new Error('data.nodes is not defined')
+
+        if (data.hasOwnProperty('beams'))
+            this.beamsData = data.beams;
+        else
+            throw new Error('data.beams is not defined')
+
+        if (data.hasOwnProperty('forces'))
+            this.forcesData = data.forces;
+        else
+            throw new Error('data.forces is not defined')
+
+        this.setup();
+        // Object.freeze(this);
+    }
+
+    _reset() {
+        this.data = {};
+        this.nodesData = {};
+        this.beamsData = {};
+        this.forcesData = {};
+        this._nodes = {};
+        this._beams = {};
+        this._forces = {};
+    }
+
+    reBuild(data) {
+        this._reset();
+        this._build(data);
     }
 
     get beams() {
@@ -65,95 +99,19 @@ class StaticSystem {
     }
 
     getNodeById(nodeId) {
-        //console.log('getting node by id ' + nodeId);
+        // console.log('getting node by id ' + nodeId);
         return this._nodes[nodeId];
     }
 
     getForceById(forceId) {
-        //console.log('getting force by id ' + forceId);
+        // console.log('getting force by id ' + forceId);
         return this._forces[forceId];
     }
 
     getBeamById(beamId) {
-        //console.log('getting beam by id ' + beamId);
+        // console.log('getting beam by id ' + beamId);
         return this._beams[beamId];
     }
 }
 
-class Node {
-    id;
-    x;
-    y;
-    type;
-
-    constructor(id,data) {
-        this.id = id;
-        this.x = data.x;
-        this.y = data.y;
-        this.type = data.type;
-    }
-}
-
-class Beam {
-    _id;
-    _startNode;
-    _endNode;
-
-    constructor(id) {
-        this._id = id;
-    }
-
-    get id() {
-        return this._id;
-    }
-
-    get startNode() {
-        return this._startNode;
-    }
-
-    get endNode() {
-        return this._endNode;
-    }
-
-    set startNode(value) {
-        this._startNode = value;
-    }
-
-    set endNode(value) {
-        this._endNode = value;
-    }
-}
-
-class Force {
-    id;
-    magnitude;
-    angle;
-    type;
-    _node;
-
-    constructor(id, data) {
-        this.id = id;
-        this.type = data.type;
-        this.magnitude = data.magnitude;
-        this.angle = data.angle;
-    }
-
-    get node() {
-        return this._node;
-    }
-
-    set node(value) {
-        this._node = value;
-    }
-
-    get angleRad() {
-        return this.angle * Math.PI / 180;
-    }
-}
-//
-// module.exports = {
-//     StaticSystem,
-//     Node,
-//     Beam,
-//     Force
-// }
+export default StaticSystem;

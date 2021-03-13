@@ -1,10 +1,3 @@
-<?php
-$env_variables = getenv();
-
-
-$PROD_URL = $env_variables['PROD_URL'];
-
-?>
 <!doctype html>
 <html lang="en">
 <head>
@@ -44,62 +37,6 @@ $PROD_URL = $env_variables['PROD_URL'];
 
 <link href="https://cdn.jsdelivr.net/npm/jsoneditor@9.1.9/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
 <script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.1.9/dist/jsoneditor.min.js"></script>
-<script src="/js/app.js?<?php echo date('YmdHis'); ?>"></script>
-<script src="/js/classes.js?<?php echo date('YmdHis'); ?>"></script>
-<script src="/js/canvas.js?<?php echo date('YmdHis'); ?>"></script>
-<script>
-    let jsonContainer = document.getElementById("jsoneditor");
-    let systemJsonData = <?php echo file_get_contents(__DIR__ . '/system_data.json'); ?>;
+<script type="module" src="/js/index.js?<?php echo date('YmdHis'); ?>"></script>
 
-
-    // setTimeout(function(){location.reload();},1000);
-
-    let prod_url = '<?php echo $PROD_URL; ?>';
-
-    let backendCommunicator = new BackendCommunicator(prod_url);
-
-    let canvas = new Canvas({static:'static-canvas',dynamic:'dynamic-canvas'});
-
-    let staticSystem = new StaticSystem(systemJsonData);
-
-
-    canvas.drawSystem(staticSystem);
-    backendCommunicator.submitSystem(systemJsonData).then(response => {
-        // console.log(response);
-        canvas.drawReactions(response.list_of_reactions);
-    });
-    let options = {
-        mode: 'code',
-        onChangeJSON: function (json) {
-            staticSystem = new StaticSystem(json);
-            canvas.drawSystem(staticSystem);
-            backendCommunicator.submitSystem(json).then(response => {
-                canvas.drawReactions(response.list_of_reactions);
-            });
-        },
-        onChangeText: function (jsonString) {
-            let json = JSON.parse(jsonString);
-            staticSystem = new StaticSystem(json);
-            canvas.drawSystem(staticSystem);
-            backendCommunicator.submitSystem(json).then(response => {
-                canvas.drawReactions(response.list_of_reactions);
-            });
-        }
-    };
-
-    let editor = new JSONEditor(jsonContainer, options);
-
-    editor.set(systemJsonData);
-
-    canvas.updateSystemJson = function (json) {
-        editor.set(json);
-        staticSystem = new StaticSystem(json);
-        canvas.drawSystem(staticSystem);
-        backendCommunicator.submitSystem(json).then(response => {
-            canvas.drawReactions(response.list_of_reactions);
-        });
-    };
-
-
-</script>
 </html>

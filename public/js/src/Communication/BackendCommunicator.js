@@ -1,8 +1,9 @@
-"use strict";
-
 class BackendCommunicator {
-    constructor(prod_url) {
-        this.prod_url = prod_url;
+    _url;
+
+    constructor(url) {
+        this._url = url;
+        Object.freeze(this);
     }
 
     async submitSystem(systemData) {
@@ -12,7 +13,7 @@ class BackendCommunicator {
             action: "solve_system"
         };
 
-        const response = await fetch(this.prod_url + '/static_system.php', {
+        const response = await fetch(this._url + '/static_system.php', {
             method: 'POST',
             mode: "cors",
             headers: {
@@ -23,4 +24,14 @@ class BackendCommunicator {
 
         return await response.json();
     }
+
+
+    get url() {
+        return this._url;
+    }
+
+    set url(value) {
+    }
 }
+
+export default BackendCommunicator;

@@ -1,5 +1,6 @@
 /vendor
 .env
+/public/js/config.js
 .phpunit.result.cache
 /.idea
 /logs
