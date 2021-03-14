@@ -14,3 +14,18 @@
 .blue {
     color: dodgerblue;
 }
+
+.magenta {
+    color: magenta;
+}
+
+/* Styles */
+
+.info-container-box {
+    border: 1px solid black;
+    padding: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 30px 0 0 50vw;
+}

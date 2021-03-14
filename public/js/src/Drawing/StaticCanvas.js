@@ -2,7 +2,7 @@ import BaseCanvas from "./BaseCanvas.js";
 import StaticSystem from "../Core/StaticSystem.js";
 
 class StaticCanvas extends BaseCanvas {
-    _staticSystem = null;
+    _staticSystem;
     listOfReactions = {};
     maxTension = -1;
     maxCompression = 1;

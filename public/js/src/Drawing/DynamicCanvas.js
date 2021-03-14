@@ -189,6 +189,13 @@ class DynamicCanvas extends BaseCanvas {
                 this.drawLineReal(this.referencePoint.x, this.referencePoint.y, e.offsetX, e.offsetY);
 
                 this.context.strokeStyle = previousStrokeStyle;
+            } else if (this.mouseMode === 'creating-node') {
+                //
+            } else if (this.mouseMode === 'deleting-element') {
+                this.checkIfMouseOnTopOfElement(e.offsetX, e.offsetY);
+
+                if (this.activeElement === null || this.activeElement instanceof Beam)
+                    this.checkIfMouseOnTopBeam(e.offsetX, e.offsetY);
             }
 
             this.drawCoordinatePosition('pointer', e.offsetX, e.offsetY);
@@ -237,6 +244,41 @@ class DynamicCanvas extends BaseCanvas {
                     this.referencePoint = {x: e.offsetX, y: e.offsetY};
                     this.mouseMode = 'movingCanvas';
                 }
+            } else if (this.mouseMode === 'creating-node') {
+                let newNodeName = this._staticSystem.generateCandidateNewNodeName();
+
+                let nodeName = prompt("Enter node name", newNodeName);
+
+                if (nodeName !== null) {
+                    this._staticSystem.data.nodes[nodeName] = {
+                        x: this.xPxToPt(e.offsetX),
+                        y: this.yPxToPt(e.offsetY),
+                        type: 'JOINT'
+                    };
+
+                    this.updateSystemJson(this._staticSystem.data);
+                }
+            } else if (this.mouseMode === 'deleting-element') {
+
+                if (this.activeElement !== null) {
+
+                    let elementType = this.activeElement instanceof Beam ?
+                        'BEAM' :
+                        (this.activeElement instanceof Node ? 'NODE' : 'UNKNOWN');
+
+                    if (confirm('Are you sure you want to delete the ' + elementType + ' [ ' + this.activeElement.id + ' ]')) {
+
+                        if (this.activeElement instanceof Beam)
+                            delete this._staticSystem.data.beams[this.activeElement.id];
+                        else if (this.activeElement instanceof Node)
+                            delete this._staticSystem.data.nodes[this.activeElement.id];
+
+                        this.updateSystemJson(this._staticSystem.data);
+                        this.mouseMode = 'free';
+                    } else {
+                        // Do nothing
+                    }
+                }
             }
             this.updateCursor();
         });
@@ -249,6 +291,8 @@ class DynamicCanvas extends BaseCanvas {
                 this.moveInY(this.yPxToPt(this.referencePoint.y) - this.yPxToPt(e.offsetY));
                 this.referencePoint = {};
                 this.mouseMode = 'free';
+            } else if (this.mouseMode === 'creating-node') {
+                this.mouseMode = 'free';
             }
             this.updateCursor();
         });
@@ -256,7 +300,10 @@ class DynamicCanvas extends BaseCanvas {
         this.canvasInstance.addEventListener('keydown', (e) => {
             let displacement = Math.round(this.w / 10);
 
-            if (e.keyCode === 37) {//arrow left
+            if (e.keyCode === 27) {//esc
+                this.mouseMode = 'free';
+                this.updateCursor();
+            } else if (e.keyCode === 37) {//arrow left
                 this.moveInX(displacement);
             } else if (e.keyCode === 38) {//arrow dup
                 this.moveInY(-displacement);
@@ -266,8 +313,15 @@ class DynamicCanvas extends BaseCanvas {
                 this.moveInY(displacement);
             } else if (e.keyCode === 67) {//c: center
                 this.centerView();
+            } else if (e.keyCode === 68) {//d: delete
+                this.mouseMode = 'deleting-element';
+                this.updateCursor();
             } else if (e.keyCode === 73) {//i: in
                 this.zoomIn();
+            } else if (e.keyCode === 78) {//n: node
+                // console.log('NODE');
+                this.mouseMode = 'creating-node';
+                this.updateCursor();
             } else if (e.keyCode === 79) {//o: out
                 this.zoomOut();
             } else if (e.keyCode === 80) {//p: print
@@ -335,6 +389,10 @@ class DynamicCanvas extends BaseCanvas {
             cursorStyle = 'grabbing';
         } else if (this.mouseMode === 'movingCanvas') {
             cursorStyle = 'move';
+        } else if (this.mouseMode === 'creating-node') {
+            cursorStyle = 'crosshair';
+        } else if (this.mouseMode === 'deleting-element') {
+            cursorStyle = 'not-allowed';
         }
 
         this.canvasInstance.style.cursor = cursorStyle;

@@ -112,6 +112,19 @@ class StaticSystem {
         // console.log('getting beam by id ' + beamId);
         return this._beams[beamId];
     }
+
+    generateCandidateNewNodeName() {
+        let lastNode = Object.keys(this._nodes).pop();
+        let numberInName = lastNode.slice(1);
+        let number = parseInt(numberInName);
+        let letter = lastNode[0];
+
+        if (isNaN(number)) {
+            return lastNode + '_2';
+        } else {
+            return letter + (number + 1);
+        }
+    }
 }
 
 export default StaticSystem;

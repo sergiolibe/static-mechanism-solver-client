@@ -11,30 +11,36 @@
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.13.0/css/all.css">
 </head>
 <body>
-<h3>
+<div>
     Static Mechanism Solver
-</h3>
-<h4>
-    Select File <i class="red fa fa-file"></i>
-    <select name="selected_file" id="file-selector"></select>
-</h4>
-<h4>
-    Place the mouse inside the canvas and use:
+</div>
+<div>
+    <strong>Select File <i class="red fa fa-file"></i>
+        <select name="selected_file" id="file-selector"></select>
+    </strong>
+</div>
+<br>
+<div>
+    Place the mouse inside the canvas and use:<br>
     [c: <i class="purple fa fa-crosshairs"></i>,
     i/wheel-up: <i class="purple fa fa-search-plus"></i>,
     o/wheel-down: <i class="purple fa fa-search-minus"></i>]
     [wheel-click or <i class="blue fa fa-arrow-left"></i>,
     <i class="blue fa fa-arrow-up"></i>,
     <i class="blue fa fa-arrow-right"></i>,
-    <i class="blue fa fa-arrow-down"></i>]
+    <i class="blue fa fa-arrow-down"></i>]<br>
     [p: <i class="green fa fa-print"></i>,
     s: <i class="green fa fa-save"></i>,
     u: <i class="green fa fa-upload"></i>]
-    <span style="border:1px solid black;padding: 10px">
+    [Interaction with elements:
+    n: <i class="magenta fa fa-dot-circle"> node</i>,
+    b: <i class="magenta fa fa-slash"> beam</i>,
+    d: <i class="magenta fa fa-trash"></i>]
+    <span class="info-container-box">
         <i class="fa fa-info"></i>
         <span id="info-container">/</span>
     </span>
-</h4>
+</div>
 
 <div style="display: inline-flex;">
     <div id="jsoneditor" style="width: 45vw; height: 80vh;"></div>
