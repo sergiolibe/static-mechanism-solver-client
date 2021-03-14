@@ -245,8 +245,8 @@ class DynamicCanvas extends BaseCanvas {
             if (this.mouseMode === 'movingNode') {
                 this.mouseMode = 'free';
             } else if (this.mouseMode === 'movingCanvas') {
-                this.moveInX(this.xPxToPt(this.referencePoint.x)-this.xPxToPt(e.offsetX));
-                this.moveInY(this.yPxToPt(this.referencePoint.y)-this.yPxToPt(e.offsetY));
+                this.moveInX(this.xPxToPt(this.referencePoint.x) - this.xPxToPt(e.offsetX));
+                this.moveInY(this.yPxToPt(this.referencePoint.y) - this.yPxToPt(e.offsetY));
                 this.referencePoint = {};
                 this.mouseMode = 'free';
             }
@@ -255,40 +255,28 @@ class DynamicCanvas extends BaseCanvas {
 
         this.canvasInstance.addEventListener('keydown', (e) => {
             let displacement = Math.round(this.w / 10);
-            switch (e.keyCode) {
-                case 37://arrow left
-                    this.moveInX(displacement);
-                    break;
-                case 38://arrow dup
-                    this.moveInY(-displacement);
-                    break;
-                case 39://arrow right
-                    this.moveInX(-displacement);
-                    break;
-                case 40://arrow down
-                    this.moveInY(displacement);
-                    break;
-                case 67://c: center
-                    this.centerView();
-                    break;
-                case 73://i: in
-                    this.zoomIn();
-                    break;
-                case 79://o: out
-                    this.zoomOut();
-                    break;
-                case 80://p: print
-                    this.print();
-                    break;
-                case 83://s: save current file (update)
-                    this._fileManager.updateCurrentStaticSystem(this._staticSystem.data);
-                    break;
-                    break;
-                case 85://u: upload new file
-                    let fileName = prompt("Enter file name to upload", "Mechanism_" + Math.floor(Date.now() / 1000));
-                    this._fileManager.uploadStaticSystem(this._staticSystem.data, fileName);
-                    break;
 
+            if (e.keyCode === 37) {//arrow left
+                this.moveInX(displacement);
+            } else if (e.keyCode === 38) {//arrow dup
+                this.moveInY(-displacement);
+            } else if (e.keyCode === 39) {//arrow right
+                this.moveInX(-displacement);
+            } else if (e.keyCode === 40) {//arrow down
+                this.moveInY(displacement);
+            } else if (e.keyCode === 67) {//c: center
+                this.centerView();
+            } else if (e.keyCode === 73) {//i: in
+                this.zoomIn();
+            } else if (e.keyCode === 79) {//o: out
+                this.zoomOut();
+            } else if (e.keyCode === 80) {//p: print
+                this.print();
+            } else if (e.keyCode === 83) {//s: save current file (update)
+                this._fileManager.updateCurrentStaticSystem(this._staticSystem.data);
+            } else if (e.keyCode === 85) {//u: upload new file
+                let fileName = prompt("Enter file name to upload", "Mechanism_" + Math.floor(Date.now() / 1000));
+                this._fileManager.uploadStaticSystem(this._staticSystem.data, fileName);
             }
         });
     }
