@@ -3,7 +3,7 @@ import StaticSystem from "../Core/StaticSystem.js";
 
 class StaticCanvas extends BaseCanvas {
     _staticSystem;
-    listOfReactions = {};
+    listOfReactions = [];
     maxTension = -1;
     maxCompression = 1;
 
@@ -50,7 +50,7 @@ class StaticCanvas extends BaseCanvas {
     }
 
     resetReactions() {
-        this.listOfReactions = {};
+        this.listOfReactions = [];
     }
 
     drawReactions(listOfReactions = null) {
@@ -264,6 +264,9 @@ class StaticCanvas extends BaseCanvas {
     }
 
     getInterpolatedReactionColor(magnitude) {
+        if (magnitude === 0)
+            return this.interpolateColor(0.5);
+
         let value = (magnitude - this.maxCompression) / (this.maxTension - this.maxCompression);
         return this.interpolateColor(value);
     }

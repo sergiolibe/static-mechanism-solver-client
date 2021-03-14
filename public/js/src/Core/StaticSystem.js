@@ -114,13 +114,26 @@ class StaticSystem {
     }
 
     generateCandidateNewNodeName() {
-        let lastNode = Object.keys(this._nodes).pop();
-        let numberInName = lastNode.slice(1);
+        let lastNodeName = Object.keys(this._nodes).pop();
+        let numberInName = lastNodeName.slice(1);
         let number = parseInt(numberInName);
-        let letter = lastNode[0];
+        let letter = lastNodeName[0];
 
         if (isNaN(number)) {
-            return lastNode + '_2';
+            return lastNodeName + '_2';
+        } else {
+            return letter + (number + 1);
+        }
+    }
+
+    generateCandidateNewBeamName() {
+        let lastBeamName = Object.keys(this._beams).pop();
+        let numberInName = lastBeamName.slice(1);
+        let number = parseInt(numberInName);
+        let letter = lastBeamName[0];
+
+        if (isNaN(number)) {
+            return lastBeamName + '_2';
         } else {
             return letter + (number + 1);
         }

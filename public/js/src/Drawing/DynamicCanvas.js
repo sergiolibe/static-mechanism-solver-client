@@ -15,6 +15,7 @@ class DynamicCanvas extends BaseCanvas {
     mouseMode = 'free';
     activeElement = null;
     referencePoint = {};
+    _beamCreation = {n1: null, n2: null};
 
     constructor(canvasNodeId) {
         super(canvasNodeId);
@@ -54,7 +55,7 @@ class DynamicCanvas extends BaseCanvas {
         this.context.fillStyle = 'black';
         let text = word + ' ( ' + this.xPxToPt(x) + ' , ' + this.yPxToPt(y) + ' )';
 
-        this.context.clearRect(10, this.canvasInstance.height - 20, this.canvasInstance.width / 2, 20);
+        // this.context.clearRect(10, this.canvasInstance.height - 20, this.canvasInstance.width / 2, 20);
 
         this.drawWordReal(10, this.canvasInstance.height - 10, text);
 
@@ -66,7 +67,7 @@ class DynamicCanvas extends BaseCanvas {
         let previousFillStyle = this.context.fillStyle;
         this.context.fillStyle = 'magenta';
 
-        this.context.clearRect(0, 0, this.canvasInstance.width, this.canvasInstance.height);
+        // this.context.clearRect(0, 0, this.canvasInstance.width, this.canvasInstance.height);
 
         if (this.activeElement === null)
             return;
@@ -165,14 +166,15 @@ class DynamicCanvas extends BaseCanvas {
 
     setupEvents() {
         this.canvasInstance.addEventListener('mousemove', e => {
+            this.context.clearRect(0, 0, this.canvasInstance.width, this.canvasInstance.height);
             this.canvasInstance.tabIndex = 0;
             this.canvasInstance.focus();
 
             if (this.mouseMode === 'free') {
-                this.checkIfMouseOnTopOfElement(e.offsetX, e.offsetY);
+                this.checkIfMouseOnTopOfNode(e.offsetX, e.offsetY);
 
                 if (this.activeElement === null || this.activeElement instanceof Beam)
-                    this.checkIfMouseOnTopBeam(e.offsetX, e.offsetY);
+                    this.checkIfMouseOnTopOfBeam(e.offsetX, e.offsetY);
             } else if (this.mouseMode === 'movingNode') {
 
                 let nodeBeingMoved = this._staticSystem.data.nodes[this.activeElement.id];
@@ -191,13 +193,16 @@ class DynamicCanvas extends BaseCanvas {
                 this.context.strokeStyle = previousStrokeStyle;
             } else if (this.mouseMode === 'creating-node') {
                 //
+            } else if (this.mouseMode === 'creating-beam') {
+                this.checkIfMouseOnTopOfNode(e.offsetX, e.offsetY);
             } else if (this.mouseMode === 'deleting-element') {
-                this.checkIfMouseOnTopOfElement(e.offsetX, e.offsetY);
+                this.checkIfMouseOnTopOfNode(e.offsetX, e.offsetY);
 
                 if (this.activeElement === null || this.activeElement instanceof Beam)
-                    this.checkIfMouseOnTopBeam(e.offsetX, e.offsetY);
+                    this.checkIfMouseOnTopOfBeam(e.offsetX, e.offsetY);
             }
 
+            this.updateActionInfo();
             this.drawCoordinatePosition('pointer', e.offsetX, e.offsetY);
         });
 
@@ -247,17 +252,46 @@ class DynamicCanvas extends BaseCanvas {
             } else if (this.mouseMode === 'creating-node') {
                 let newNodeName = this._staticSystem.generateCandidateNewNodeName();
 
-                let nodeName = prompt("Enter node name", newNodeName);
+                let x = this.xPxToPt(e.offsetX);
+                let y = this.yPxToPt(e.offsetY);
+
+                let nodeName = prompt('Enter name for new Node [x: ' + x + ' , y:' + y + ' ]', newNodeName);
 
                 if (nodeName !== null) {
                     this._staticSystem.data.nodes[nodeName] = {
-                        x: this.xPxToPt(e.offsetX),
-                        y: this.yPxToPt(e.offsetY),
+                        x: x,
+                        y: y,
                         type: 'JOINT'
                     };
 
                     this.updateSystemJson(this._staticSystem.data);
                 }
+            } else if (this.mouseMode === 'creating-beam') {
+
+                if (this.activeElement !== null && this.activeElement instanceof Node) {
+                    if (this._beamCreation.n1 === null) {
+                        this._beamCreation.n1 = this.activeElement;
+                    } else if (this._beamCreation.n2 === null && this._beamCreation.n1.id !== this.activeElement.id) {
+                        this._beamCreation.n2 = this.activeElement;
+                        let newBeamName = this._staticSystem.generateCandidateNewBeamName();
+
+                        let beamName = prompt(
+                            'Enter name for new Beam [startNode: ' + this._beamCreation.n1.id
+                            + ' , endNode:' + this._beamCreation.n2.id + ' ]'
+                            , newBeamName);
+
+                        if (beamName !== null) {
+                            this._staticSystem.data.beams[beamName] = {
+                                startNode: this._beamCreation.n1.id,
+                                endNode: this._beamCreation.n2.id
+                            };
+
+                            this.updateSystemJson(this._staticSystem.data);
+                        }
+
+                    }
+                }
+
             } else if (this.mouseMode === 'deleting-element') {
 
                 if (this.activeElement !== null) {
@@ -273,6 +307,7 @@ class DynamicCanvas extends BaseCanvas {
                         else if (this.activeElement instanceof Node)
                             delete this._staticSystem.data.nodes[this.activeElement.id];
 
+                        this._staticCanvas.resetReactions();
                         this.updateSystemJson(this._staticSystem.data);
                         this.mouseMode = 'free';
                     } else {
@@ -293,6 +328,11 @@ class DynamicCanvas extends BaseCanvas {
                 this.mouseMode = 'free';
             } else if (this.mouseMode === 'creating-node') {
                 this.mouseMode = 'free';
+            } else if (this.mouseMode === 'creating-beam') {
+                if (this._beamCreation.n1 !== null && this._beamCreation.n2 !== null) {
+                    this.mouseMode = 'free';
+                    this._beamCreation = {n1: null, n2: null};
+                }
             }
             this.updateCursor();
         });
@@ -302,6 +342,7 @@ class DynamicCanvas extends BaseCanvas {
 
             if (e.keyCode === 27) {//esc
                 this.mouseMode = 'free';
+                this._beamCreation = {n1: null, n2: null};
                 this.updateCursor();
             } else if (e.keyCode === 37) {//arrow left
                 this.moveInX(displacement);
@@ -311,6 +352,10 @@ class DynamicCanvas extends BaseCanvas {
                 this.moveInX(-displacement);
             } else if (e.keyCode === 40) {//arrow down
                 this.moveInY(displacement);
+            } else if (e.keyCode === 66) {//b: beam
+                // console.log('BEAM');
+                this.mouseMode = 'creating-beam';
+                this.updateCursor();
             } else if (e.keyCode === 67) {//c: center
                 this.centerView();
             } else if (e.keyCode === 68) {//d: delete
@@ -338,7 +383,7 @@ class DynamicCanvas extends BaseCanvas {
     updateSystemJson(json) {
     }
 
-    checkIfMouseOnTopOfElement(x, y) {
+    checkIfMouseOnTopOfNode(x, y) {
         this.highlightActiveElement();
         for (let nodeId in this._staticSystem.nodes) {
             let node = this._staticSystem.nodes[nodeId];
@@ -354,7 +399,7 @@ class DynamicCanvas extends BaseCanvas {
         this.activeElement = null;
     }
 
-    checkIfMouseOnTopBeam(x, y) {
+    checkIfMouseOnTopOfBeam(x, y) {
         this.highlightActiveElement();
         for (let beamId in this._staticSystem.beams) {
             let beam = this._staticSystem.beams[beamId];
@@ -391,11 +436,37 @@ class DynamicCanvas extends BaseCanvas {
             cursorStyle = 'move';
         } else if (this.mouseMode === 'creating-node') {
             cursorStyle = 'crosshair';
+        } else if (this.mouseMode === 'creating-beam') {
+            cursorStyle = 'crosshair';
         } else if (this.mouseMode === 'deleting-element') {
             cursorStyle = 'not-allowed';
         }
 
         this.canvasInstance.style.cursor = cursorStyle;
+    }
+
+    updateActionInfo() {
+        if (this.mouseMode === 'creating-node') {
+            this.writeActionInfo('Creating Node');
+        } else if (this.mouseMode === 'creating-beam') {
+
+            if (this._beamCreation.n1 === null)
+                this.writeActionInfo('Creating Beam [Select startNode]');
+            else if (this._beamCreation.n2 === null)
+                this.writeActionInfo('Creating Beam [Select endNode]');
+
+        }
+    }
+
+    writeActionInfo(text) {
+        let previousFillStyle = this.context.fillStyle;
+        this.context.fillStyle = 'darkcyan';
+
+        // this.context.clearRect(0, 0, this.canvasInstance.width, this.canvasInstance.height);
+
+        this.drawWordReal(10, this.canvasInstance.height - 60, 'Action: [ ' + text + ' ]');
+
+        this.context.fillStyle = previousFillStyle;
     }
 
     // Drawing
