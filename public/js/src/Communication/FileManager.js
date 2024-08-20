@@ -38,10 +38,10 @@ class FileManager {
                 this._fileSelector.appendChild(optionNode);
             });
 
-            if (this._fileSelector.value !== '') {
+            if (this._fileSelector.value !== '' && this._currentFile === undefined) {
                 this._currentFile = this._fileSelector.value;
-                this.fetchStaticSystem(this._currentFile);
             }
+            this.fetchStaticSystem(this._currentFile);
             // console.log('received systems');
         });
     }
