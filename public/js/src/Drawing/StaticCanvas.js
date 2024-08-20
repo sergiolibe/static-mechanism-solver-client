@@ -2,16 +2,20 @@ import BaseCanvas from "./BaseCanvas.js";
 import StaticSystem from "../Core/StaticSystem.js";
 
 class StaticCanvas extends BaseCanvas {
-    _staticSystem;
+    /** @type {StaticSystem} */
+    staticSystem;
+    /** @type {Reaction[]} */
     listOfReactions = [];
+    /** @type {number} */
     maxTension = -1;
+    /** @type {number} */
     maxCompression = 1;
 
     set staticSystem(staticSystem) {
         if (staticSystem instanceof StaticSystem)
-            this._staticSystem = staticSystem;
+            this.staticSystem = staticSystem;
         else
-            throw new Error('Expected instance of StaticSystem, get: ' + staticSystem)
+            throw new Error('Expected instance of StaticSystem, got: ' + staticSystem)
     }
 
     drawGuidelines() {
@@ -36,13 +40,13 @@ class StaticCanvas extends BaseCanvas {
         this.cleanCanvas();
         this.drawGuidelines();
 
-        Object.values(this._staticSystem.beams)
+        Object.values(this.staticSystem.beams)
             .forEach((beam) => this.drawBeam(beam));
 
-        Object.values(this._staticSystem.nodes)
+        Object.values(this.staticSystem.nodes)
             .forEach((node) => this.drawNode(node));
 
-        Object.values(this._staticSystem.forces)
+        Object.values(this.staticSystem.forces)
             .forEach((force) => this.drawForce(force));
 
         if (Object.keys(this.listOfReactions).length > 0)
@@ -53,6 +57,9 @@ class StaticCanvas extends BaseCanvas {
         this.listOfReactions = [];
     }
 
+    /**
+     * @param {Reaction[]|null} listOfReactions
+     */
     drawReactions(listOfReactions = null) {
         if (listOfReactions !== null) {
             this.listOfReactions = listOfReactions;
@@ -85,7 +92,7 @@ class StaticCanvas extends BaseCanvas {
                 this.context.strokeStyle = magnitude > 0 ? 'blue' : 'red';
                 // this.context.strokeStyle = this.getInterpolatedReactionColor(magnitude);
 
-                let node = this._staticSystem.getNodeById(nodeName);
+                let node = this.staticSystem.getNodeById(nodeName);
 
                 let length = 20;
                 if (reaction.type === 'U2') {
@@ -110,12 +117,14 @@ class StaticCanvas extends BaseCanvas {
                 // this.context.strokeStyle = this.getInterpolatedReactionColor(magnitude);
                 this.context.strokeStyle = 'green';
 
-                let force = this._staticSystem.getForceById(forceName);
+                let force = this.staticSystem.getForceById(forceName);
 
                 let length = 10;
                 // let radAngle = reaction.radAngle;
+                /** @type {{x: number, y: number}} */
                 let head = {x: force.node.x, y: force.node.y};
-                let tail = {};
+                /** @type {{x: number, y: number}} */
+                let tail ;
                 if (magnitude > 0) {
                     tail = {x: head.x - length * reaction.cos, y: head.y - length * reaction.sin};
                 } else {
@@ -129,7 +138,7 @@ class StaticCanvas extends BaseCanvas {
                 // this.context.strokeStyle = magnitude > 0 ? 'cyan' : 'darkred';
                 this.context.strokeStyle = this.getInterpolatedReactionColor(magnitude);
 
-                let beam = this._staticSystem.getBeamById(beamName);
+                let beam = this.staticSystem.getBeamById(beamName);
 
                 this.drawLine(beam.startNode.x, beam.startNode.y, beam.endNode.x, beam.endNode.y);
             }
@@ -162,6 +171,9 @@ class StaticCanvas extends BaseCanvas {
         switch (node.type) {
             case 'U1':
                 this.drawU1(node.x, node.y)
+                break;
+            case 'U2':
+                this.drawU2(node.x, node.y)
                 break;
             case 'U1U2':
                 this.drawU1U2(node.x, node.y)

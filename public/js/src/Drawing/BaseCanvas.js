@@ -1,20 +1,22 @@
 class BaseCanvas {
+    /** @type {number} */
     w = 150;
+    /** @type {number} */
     h = 150;
+    /** @type {number} */
     Cx = 30;
+    /** @type {number} */
     Cy = 120;
+    /** @type {string} */
     canvasNodeId;
+    /** @type {HTMLCanvasElement} */
     canvasInstance;
-    // dynamicCanvas;
-    // staticContext;
-    // ptInPx;
-    // staticSystem={};
-    // listOfReactions={};
-    // maxTension;
-    // maxCompression;
-    // mouseMode = 'free';
-    // activeElement=null;
+    /** @type {CanvasRenderingContext2D} */
+    context;
 
+    /**
+     * @param {string} canvasNodeId
+     */
     constructor(canvasNodeId) {
         this.canvasNodeId = canvasNodeId;
         this.canvasInstance = document.getElementById(canvasNodeId);

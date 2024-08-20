@@ -8,22 +8,22 @@ import StaticCanvas from "./StaticCanvas.js";
 import StaticSystem from "./../Core/StaticSystem.js";
 
 class DynamicCanvas extends BaseCanvas {
-    /** @type {TODO} */
-    _staticSystem;
-    /** @type {TODO} */
-    _staticCanvas;
-    /** @type {TODO} */
-    _backgroundCanvas;
-    /** @type {TODO} */
-    _fileManager;
-    /** @type {TODO} */
+    /** @type {StaticSystem} */
+    staticSystem;
+    /** @type {StaticCanvas} */
+    staticCanvas;
+    /** @type {BackgroundCanvas} */
+    backgroundCanvas;
+    /** @type {FileManager} */
+    fileManager;
+    /** @type {'creating-beam','creating-node','deleting-element','free','movingCanvas','movingNode'} */
     mouseMode = 'free';
     /** @type {Beam|Node|null} */
     activeElement = null;
-    /** @type {TODO} */
+    /** @type {{x: number, y: number}} */
     referencePoint = {};
-    /** @type {TODO} */
-    _beamCreation = {n1: null, n2: null};
+    /** @type {{n1:Node|null,n2:Node|null}} */
+    beamCreation = {n1: null, n2: null};
 
     constructor(canvasNodeId) {
         super(canvasNodeId);
@@ -32,28 +32,28 @@ class DynamicCanvas extends BaseCanvas {
 
     set staticSystem(staticSystem) {
         if (staticSystem instanceof StaticSystem)
-            this._staticSystem = staticSystem;
+            this.staticSystem = staticSystem;
         else
             throw new Error('Expected instance of StaticSystem, get: ' + staticSystem)
     }
 
     set staticCanvas(staticCanvas) {
         if (staticCanvas instanceof StaticCanvas)
-            this._staticCanvas = staticCanvas;
+            this.staticCanvas = staticCanvas;
         else
             throw new Error('Expected instance of StaticCanvas, get: ' + staticCanvas)
     }
 
     set backgroundCanvas(backgroundCanvas) {
         if (backgroundCanvas instanceof BackgroundCanvas)
-            this._backgroundCanvas = backgroundCanvas;
+            this.backgroundCanvas = backgroundCanvas;
         else
             throw new Error('Expected instance of BackgroundCanvas, get: ' + backgroundCanvas)
     }
 
     set fileManager(fileManager) {
         if (fileManager instanceof FileManager)
-            this._fileManager = fileManager;
+            this.fileManager = fileManager;
         else
             throw new Error('Expected instance of FileManager, get: ' + fileManager)
     }
@@ -87,8 +87,8 @@ class DynamicCanvas extends BaseCanvas {
         } else if (this.activeElement instanceof Beam) {
             this.drawSelectedBeam(this.activeElement);
             let reactionValue = NaN;
-            // console.log(this._staticCanvas.listOfReactions);
-            this._staticCanvas.listOfReactions.forEach((reaction) => {
+            // console.log(this.staticCanvas.listOfReactions);
+            this.staticCanvas.listOfReactions.forEach((reaction) => {
                 if (
                     reaction.type === 'BEAM'
                     && reaction.referenceId === this.activeElement.id
@@ -116,7 +116,7 @@ class DynamicCanvas extends BaseCanvas {
         this.ptInPx = this.canvasInstance.width / this.w;
 
         this.syncDimensionsBetweenCanvas();
-        this._staticCanvas.drawSystem();
+        this.staticCanvas.drawSystem();
     }
 
     zoomOut(scale = 1.25) {
@@ -129,21 +129,21 @@ class DynamicCanvas extends BaseCanvas {
         this.ptInPx = this.canvasInstance.width / this.w;
 
         this.syncDimensionsBetweenCanvas();
-        this._staticCanvas.drawSystem();
+        this.staticCanvas.drawSystem();
     }
 
     moveInX(x = 10) {
         this.Cx -= x;
 
         this.syncDimensionsBetweenCanvas();
-        this._staticCanvas.drawSystem();
+        this.staticCanvas.drawSystem();
     }
 
     moveInY(y = 10) {
         this.Cy -= y;
 
         this.syncDimensionsBetweenCanvas();
-        this._staticCanvas.drawSystem();
+        this.staticCanvas.drawSystem();
     }
 
     centerView() {
@@ -151,25 +151,25 @@ class DynamicCanvas extends BaseCanvas {
         this.Cy = Math.round(this.h / 2);
 
         this.syncDimensionsBetweenCanvas();
-        this._staticCanvas.drawSystem();
+        this.staticCanvas.drawSystem();
     }
 
     syncDimensionsBetweenCanvas() {
-        this._staticCanvas.w = this.w;
-        this._staticCanvas.Cx = this.Cx;
-        this._staticCanvas.h = this.h;
-        this._staticCanvas.Cy = this.Cy;
-        this._staticCanvas.ptInPx = this.ptInPx;
+        this.staticCanvas.w = this.w;
+        this.staticCanvas.Cx = this.Cx;
+        this.staticCanvas.h = this.h;
+        this.staticCanvas.Cy = this.Cy;
+        this.staticCanvas.ptInPx = this.ptInPx;
     }
 
     // Actions
 
     print() {
-        this._backgroundCanvas.context.drawImage(this._staticCanvas.canvasInstance, 0, 0);
-        this._backgroundCanvas.context.drawImage(this.canvasInstance, 0, 0);
-        let canvasUrl = this._backgroundCanvas.canvasInstance.toDataURL();
+        this.backgroundCanvas.context.drawImage(this.staticCanvas.canvasInstance, 0, 0);
+        this.backgroundCanvas.context.drawImage(this.canvasInstance, 0, 0);
+        let canvasUrl = this.backgroundCanvas.canvasInstance.toDataURL();
         window.open(canvasUrl, '_blank');
-        this._backgroundCanvas.paintBackground();
+        this.backgroundCanvas.paintBackground();
     }
 
     setupEvents() {
@@ -185,10 +185,10 @@ class DynamicCanvas extends BaseCanvas {
                     this.checkIfMouseOnTopOfBeam(e.offsetX, e.offsetY);
             } else if (this.mouseMode === 'movingNode') {
 
-                let nodeBeingMoved = this._staticSystem.data.nodes[this.activeElement.id];
+                let nodeBeingMoved = this.staticSystem.data.nodes[this.activeElement.id];
                 nodeBeingMoved.x = this.xPxToPt(e.offsetX);
                 nodeBeingMoved.y = this.yPxToPt(e.offsetY);
-                this.updateSystemJson(this._staticSystem.data);
+                this.updateSystemJson(this.staticSystem.data);
 
             } else if (this.mouseMode === 'movingCanvas') {
                 let previousStrokeStyle = this.context.strokeStyle;
@@ -228,15 +228,15 @@ class DynamicCanvas extends BaseCanvas {
                 let wheelX = e.offsetX;
                 let wheelY = e.offsetY;
 
-                if (wheelX > (width * 2 / 3))
+                if (wheelX > (width * (2 / 3)))
                     this.moveInX(displacement);
-                if (wheelX < (width * 1 / 3))
+                if (wheelX < (width * (1 / 3)))
                     this.moveInX(-displacement);
 
-                if (wheelY < (height * 1 / 3))
+                if (wheelY < (height * (1 / 3)))
                     this.moveInY(displacement);
 
-                if (wheelY > (height * 2 / 3))
+                if (wheelY > (height * (2 / 3)))
                     this.moveInY(-displacement);
             } else {
                 this.zoomOut();
@@ -258,7 +258,7 @@ class DynamicCanvas extends BaseCanvas {
                     this.mouseMode = 'movingCanvas';
                 }
             } else if (this.mouseMode === 'creating-node') {
-                let newNodeName = this._staticSystem.generateCandidateNewNodeName();
+                let newNodeName = this.staticSystem.generateCandidateNewNodeName();
 
                 let x = this.xPxToPt(e.offsetX);
                 let y = this.yPxToPt(e.offsetY);
@@ -266,35 +266,35 @@ class DynamicCanvas extends BaseCanvas {
                 let nodeName = prompt('Enter name for new Node [x: ' + x + ' , y:' + y + ' ]', newNodeName);
 
                 if (nodeName !== null) {
-                    this._staticSystem.data.nodes[nodeName] = {
+                    this.staticSystem.data.nodes[nodeName] = {
                         x: x,
                         y: y,
                         type: 'JOINT'
                     };
 
-                    this.updateSystemJson(this._staticSystem.data);
+                    this.updateSystemJson(this.staticSystem.data);
                 }
             } else if (this.mouseMode === 'creating-beam') {
 
                 if (this.activeElement !== null && this.activeElement instanceof Node) {
-                    if (this._beamCreation.n1 === null) {
-                        this._beamCreation.n1 = this.activeElement;
-                    } else if (this._beamCreation.n2 === null && this._beamCreation.n1.id !== this.activeElement.id) {
-                        this._beamCreation.n2 = this.activeElement;
-                        let newBeamName = this.generateStandardBeanName() ?? this._staticSystem.generateCandidateNewBeamName();
+                    if (this.beamCreation.n1 === null) {
+                        this.beamCreation.n1 = this.activeElement;
+                    } else if (this.beamCreation.n2 === null && this.beamCreation.n1.id !== this.activeElement.id) {
+                        this.beamCreation.n2 = this.activeElement;
+                        let newBeamName = this.generateStandardBeanName() ?? this.staticSystem.generateCandidateNewBeamName();
 
                         let beamName = prompt(
-                            'Enter name for new Beam [startNode: ' + this._beamCreation.n1.id
-                            + ' , endNode:' + this._beamCreation.n2.id + ' ]'
+                            'Enter name for new Beam [startNode: ' + this.beamCreation.n1.id
+                            + ' , endNode:' + this.beamCreation.n2.id + ' ]'
                             , newBeamName);
 
                         if (beamName !== null) {
-                            this._staticSystem.data.beams[beamName] = {
-                                startNode: this._beamCreation.n1.id,
-                                endNode: this._beamCreation.n2.id
+                            this.staticSystem.data.beams[beamName] = {
+                                startNode: this.beamCreation.n1.id,
+                                endNode: this.beamCreation.n2.id
                             };
 
-                            this.updateSystemJson(this._staticSystem.data);
+                            this.updateSystemJson(this.staticSystem.data);
                         }
 
                     }
@@ -311,12 +311,12 @@ class DynamicCanvas extends BaseCanvas {
                     if (confirm('Are you sure you want to delete the ' + elementType + ' [ ' + this.activeElement.id + ' ]')) {
 
                         if (this.activeElement instanceof Beam)
-                            delete this._staticSystem.data.beams[this.activeElement.id];
+                            delete this.staticSystem.data.beams[this.activeElement.id];
                         else if (this.activeElement instanceof Node)
-                            delete this._staticSystem.data.nodes[this.activeElement.id];
+                            delete this.staticSystem.data.nodes[this.activeElement.id];
 
-                        this._staticCanvas.resetReactions();
-                        this.updateSystemJson(this._staticSystem.data);
+                        this.staticCanvas.resetReactions();
+                        this.updateSystemJson(this.staticSystem.data);
                         this.mouseMode = 'free';
                     } else {
                         // Do nothing
@@ -337,9 +337,9 @@ class DynamicCanvas extends BaseCanvas {
             } else if (this.mouseMode === 'creating-node') {
                 this.mouseMode = 'free';
             } else if (this.mouseMode === 'creating-beam') {
-                if (this._beamCreation.n1 !== null && this._beamCreation.n2 !== null) {
+                if (this.beamCreation.n1 !== null && this.beamCreation.n2 !== null) {
                     this.mouseMode = 'free';
-                    this._beamCreation = {n1: null, n2: null};
+                    this.beamCreation = {n1: null, n2: null};
                 }
             }
             this.updateCursor();
@@ -348,42 +348,42 @@ class DynamicCanvas extends BaseCanvas {
         this.canvasInstance.addEventListener('keydown', (e) => {
             let displacement = Math.round(this.w / 10);
 
-            if (e.keyCode === 27) {//esc
+            if (e.key === '27') {//esc
                 this.mouseMode = 'free';
-                this._beamCreation = {n1: null, n2: null};
+                this.beamCreation = {n1: null, n2: null};
                 this.updateCursor();
-            } else if (e.keyCode === 37) {//arrow left
+            } else if (e.key === '37') {//arrow left
                 this.moveInX(displacement);
-            } else if (e.keyCode === 38) {//arrow dup
+            } else if (e.key === '38') {//arrow dup
                 this.moveInY(-displacement);
-            } else if (e.keyCode === 39) {//arrow right
+            } else if (e.key === '39') {//arrow right
                 this.moveInX(-displacement);
-            } else if (e.keyCode === 40) {//arrow down
+            } else if (e.key === '40') {//arrow down
                 this.moveInY(displacement);
-            } else if (e.keyCode === 66) {//b: beam
+            } else if (e.key === '66') {//b: beam
                 // console.log('BEAM');
                 this.mouseMode = 'creating-beam';
                 this.updateCursor();
-            } else if (e.keyCode === 67) {//c: center
+            } else if (e.key === '67') {//c: center
                 this.centerView();
-            } else if (e.keyCode === 68) {//d: delete
+            } else if (e.key === '68') {//d: delete
                 this.mouseMode = 'deleting-element';
                 this.updateCursor();
-            } else if (e.keyCode === 73) {//i: in
+            } else if (e.key === '73') {//i: in
                 this.zoomIn();
-            } else if (e.keyCode === 78) {//n: node
+            } else if (e.key === '78') {//n: node
                 // console.log('NODE');
                 this.mouseMode = 'creating-node';
                 this.updateCursor();
-            } else if (e.keyCode === 79) {//o: out
+            } else if (e.key === '79') {//o: out
                 this.zoomOut();
-            } else if (e.keyCode === 80) {//p: print
+            } else if (e.key === '80') {//p: print
                 this.print();
-            } else if (e.keyCode === 83) {//s: save current file (update)
-                this._fileManager.updateCurrentStaticSystem(this._staticSystem.data);
-            } else if (e.keyCode === 85) {//u: upload new file
+            } else if (e.key === '83') {//s: save current file (update)
+                this.fileManager.updateCurrentStaticSystem(this.staticSystem.data);
+            } else if (e.key === '85') {//u: upload new file
                 let fileName = prompt("Enter file name to upload", "Mechanism_" + Math.floor(Date.now() / 1000));
-                this._fileManager.uploadStaticSystem(this._staticSystem.data, fileName);
+                this.fileManager.uploadStaticSystem(this.staticSystem.data, fileName);
             }
         });
     }
@@ -393,8 +393,8 @@ class DynamicCanvas extends BaseCanvas {
 
     checkIfMouseOnTopOfNode(x, y) {
         this.highlightActiveElement();
-        for (let nodeId in this._staticSystem.nodes) {
-            let node = this._staticSystem.nodes[nodeId];
+        for (let nodeId in this.staticSystem.nodes) {
+            let node = this.staticSystem.nodes[nodeId];
 
             if (
                 Geometry.pointIsOnPoint(this.xPtToPx(node.x), this.yPtToPx(node.y), x, y)
@@ -409,8 +409,8 @@ class DynamicCanvas extends BaseCanvas {
 
     checkIfMouseOnTopOfBeam(x, y) {
         this.highlightActiveElement();
-        for (let beamId in this._staticSystem.beams) {
-            let beam = this._staticSystem.beams[beamId];
+        for (let beamId in this.staticSystem.beams) {
+            let beam = this.staticSystem.beams[beamId];
 
             if (
                 Geometry.pointIsInLineBetweenPoints(
@@ -458,9 +458,9 @@ class DynamicCanvas extends BaseCanvas {
             this.writeActionInfo('Creating Node');
         } else if (this.mouseMode === 'creating-beam') {
 
-            if (this._beamCreation.n1 === null)
+            if (this.beamCreation.n1 === null)
                 this.writeActionInfo('Creating Beam [Select startNode]');
-            else if (this._beamCreation.n2 === null)
+            else if (this.beamCreation.n2 === null)
                 this.writeActionInfo('Creating Beam [Select endNode]');
 
         }
@@ -515,7 +515,7 @@ class DynamicCanvas extends BaseCanvas {
      * @returns {undefined|string}
      */
     generateStandardBeanName() {
-        const {n1, n2} = this._beamCreation;
+        const {n1, n2} = this.beamCreation;
         if (
             n1 === undefined
             || n2 === undefined

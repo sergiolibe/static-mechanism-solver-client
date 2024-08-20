@@ -21,17 +21,11 @@ class Node {
     }
 }
 
+
 /**
  * Enum for Node types
- * @readonly
- * @enum {string}
+ * @typedef {'U1' | 'U2' | 'U1U2'| 'JOINT'| 'FREE'} NodeType
  */
-export const NodeType = {
-    U1: 'U1',
-    U1U2: 'U1U2',
-    JOINT: 'JOINT',
-    FREE: 'FREE',
-};
 
 /**
  * Data for node

@@ -7,7 +7,7 @@ class Force {
     angle;
     /** @type {ForceType} */
     type;
-    /** @type {string|undefined} */
+    /** @type {Node|undefined} */
     node;
 
     constructor(id, data) {

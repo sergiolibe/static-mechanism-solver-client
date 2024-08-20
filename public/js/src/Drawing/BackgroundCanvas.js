@@ -2,6 +2,9 @@ import BaseCanvas from "./BaseCanvas.js";
 
 class BackgroundCanvas extends BaseCanvas {
 
+    /**
+     * @param {string} canvasNodeId
+     */
     constructor(canvasNodeId) {
         super(canvasNodeId);
 

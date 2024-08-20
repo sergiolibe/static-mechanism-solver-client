@@ -1,9 +1,9 @@
 class Beam {
     /** @type {string} */
     id;
-    /** @type {string|undefined} */
+    /** @type {Node|undefined} */
     startNode;
-    /** @type {string|undefined} */
+    /** @type {Node|undefined} */
     endNode;
 
     /**
@@ -18,8 +18,8 @@ class Beam {
 /**
  * Data for Beam
  * @typedef {Object} BeamData
- * @property {startNode} string
- * @property {endNode} string
+ * @property {string} startNode
+ * @property {string} endNode
  */
 
 

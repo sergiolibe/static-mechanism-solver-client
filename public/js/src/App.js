@@ -22,7 +22,7 @@ class App {
         this._staticSystem = new StaticSystem(this._jsonData);
 
         this._backendCommunicator = new BackendCommunicator(config.backend_url);
-        this.initializeFileManager(config.file_selector_id,config.info_container_id);
+        this.initializeFileManager(config.file_selector_id, config.info_container_id);
 
         this.initializeBackgroundCanvas(config.background_canvas_id);
         this.initializeStaticCanvas(config.static_canvas_id);
@@ -101,10 +101,55 @@ class App {
     }
 
     solveSystem() {
-        this._backendCommunicator.submitSystem(this._jsonData).then(response => {
+        this._backendCommunicator.submitSystem(this._jsonData).then(/** @param {BEResponse} response */response => {
             this._staticCanvas.drawReactions(response.list_of_reactions);
         });
     }
 }
 
+/**
+ * BE response
+ * @typedef {Object} BEResponse
+ * @property {Reaction[]} list_of_reactions
+ * @property {boolean} success
+
+ */
+
+/**
+ * Reaction
+ * @typedef {Object} Reaction
+ * @property {string} symbol
+ * @property {string} referenceId
+ * @property {ReactionType} type
+ * @property {number} angle
+ * @property {number} radAngle
+ * @property {number} magnitude
+ * @property {number} cos
+ * @property {number} sin
+ */
+
+/**
+ * Enum for Reaction types
+ * @typedef {'U1' | 'U2' | 'BEAM' | 'FORCE' | 'RESULT'} ReactionType
+ */
+
+
+/* reaction
+{
+        "symbol": "B_b1",
+        "referenceId": "b1",
+        "type": "BEAM",
+        "angle": 0,
+        "radAngle": 0,
+        "magnitude": 65.476,
+        "cos": 1,
+        "sin": 0
+    }
+* */
+/* BE response
+{
+    "list_of_reactions": reaction[], "success": bool
+}*/
 export default App;
+
+
