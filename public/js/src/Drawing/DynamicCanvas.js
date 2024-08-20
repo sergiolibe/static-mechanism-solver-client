@@ -348,42 +348,44 @@ class DynamicCanvas extends BaseCanvas {
         this.canvasInstance.addEventListener('keydown', (e) => {
             let displacement = Math.round(this.w / 10);
 
-            if (e.key === '27') {//esc
+            if (e.key === 'Escape') {//esc
                 this.mouseMode = 'free';
                 this.beamCreation = {n1: null, n2: null};
                 this.updateCursor();
-            } else if (e.key === '37') {//arrow left
+            } else if (e.key === 'ArrowLeft') {//arrow left
                 this.moveInX(displacement);
-            } else if (e.key === '38') {//arrow dup
+            } else if (e.key === 'ArrowUp') {//arrow dup
                 this.moveInY(-displacement);
-            } else if (e.key === '39') {//arrow right
+            } else if (e.key === 'ArrowRight') {//arrow right
                 this.moveInX(-displacement);
-            } else if (e.key === '40') {//arrow down
+            } else if (e.key === 'ArrowDown') {//arrow down
                 this.moveInY(displacement);
-            } else if (e.key === '66') {//b: beam
+            } else if (e.key === 'b') {//b: beam
                 // console.log('BEAM');
                 this.mouseMode = 'creating-beam';
                 this.updateCursor();
-            } else if (e.key === '67') {//c: center
+            } else if (e.key === 'c') {//c: center
                 this.centerView();
-            } else if (e.key === '68') {//d: delete
+            } else if (e.key === 'd') {//d: delete
                 this.mouseMode = 'deleting-element';
                 this.updateCursor();
-            } else if (e.key === '73') {//i: in
+            } else if (e.key === 'i') {//i: in
                 this.zoomIn();
-            } else if (e.key === '78') {//n: node
+            } else if (e.key === 'n') {//n: node
                 // console.log('NODE');
                 this.mouseMode = 'creating-node';
                 this.updateCursor();
-            } else if (e.key === '79') {//o: out
+            } else if (e.key === 'o') {//o: out
                 this.zoomOut();
-            } else if (e.key === '80') {//p: print
+            } else if (e.key === 'p') {//p: print
                 this.print();
-            } else if (e.key === '83') {//s: save current file (update)
+            } else if (e.key === 's') {//s: save current file (update)
                 this.fileManager.updateCurrentStaticSystem(this.staticSystem.data);
-            } else if (e.key === '85') {//u: upload new file
+            } else if (e.key === 'u') {//u: upload new file
                 let fileName = prompt("Enter file name to upload", "Mechanism_" + Math.floor(Date.now() / 1000));
-                this.fileManager.uploadStaticSystem(this.staticSystem.data, fileName);
+                this.fileManager.uploadStaticSystem(this.staticSystem.data, fileName)
+                    .then(response => console.info('success on uploadStaticSystem', response))
+                    .catch(e => console.error('error on uploadStaticSystem', e));
             }
         });
     }
