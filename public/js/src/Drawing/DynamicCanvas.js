@@ -273,7 +273,7 @@ class DynamicCanvas extends BaseCanvas {
                         this._beamCreation.n1 = this.activeElement;
                     } else if (this._beamCreation.n2 === null && this._beamCreation.n1.id !== this.activeElement.id) {
                         this._beamCreation.n2 = this.activeElement;
-                        let newBeamName = this._staticSystem.generateCandidateNewBeamName();
+                        let newBeamName = this.generateStandardBeanName() ?? this._staticSystem.generateCandidateNewBeamName();
 
                         let beamName = prompt(
                             'Enter name for new Beam [startNode: ' + this._beamCreation.n1.id
@@ -500,6 +500,24 @@ class DynamicCanvas extends BaseCanvas {
 
         this.context.strokeStyle = previousStrokeStyle;
         this.context.fillStyle = previousFillStyle;
+    }
+
+    generateStandardBeanName() {
+        const {n1, n2} = this._beamCreation;
+        if (
+            n1 === undefined
+            || n2 === undefined
+            || !this.isStandardNodeName(n1.id)
+            || !this.isStandardNodeName(n2.id)
+        ) {
+            return undefined;
+        }
+
+        return `b${n1.id.replace('n', '')}-${n2.id.replace('n', '')}`
+    }
+
+    isStandardNodeName(nodeId) {
+        return /^n\d+$/.test(nodeId)
     }
 }
 
