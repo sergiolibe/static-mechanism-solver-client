@@ -8,13 +8,21 @@ import StaticCanvas from "./StaticCanvas.js";
 import StaticSystem from "./../Core/StaticSystem.js";
 
 class DynamicCanvas extends BaseCanvas {
+    /** @type {TODO} */
     _staticSystem;
+    /** @type {TODO} */
     _staticCanvas;
+    /** @type {TODO} */
     _backgroundCanvas;
+    /** @type {TODO} */
     _fileManager;
+    /** @type {TODO} */
     mouseMode = 'free';
+    /** @type {Beam|Node|null} */
     activeElement = null;
+    /** @type {TODO} */
     referencePoint = {};
+    /** @type {TODO} */
     _beamCreation = {n1: null, n2: null};
 
     constructor(canvasNodeId) {
@@ -502,6 +510,10 @@ class DynamicCanvas extends BaseCanvas {
         this.context.fillStyle = previousFillStyle;
     }
 
+    /**
+     *
+     * @returns {undefined|string}
+     */
     generateStandardBeanName() {
         const {n1, n2} = this._beamCreation;
         if (

@@ -3,14 +3,21 @@ import Force from "./Force.js";
 import Node from "./Node.js";
 
 class StaticSystem {
+    /** @type {{ nodes:Record<string,NodeData>, beams:Record<string,BeamData>, forces:Record<string,ForceData>}} */
     data;
+    /** @type {Record<string,NodeData>} */
     nodesData;
+    /** @type {Record<string,BeamData>} */
     beamsData;
+    /** @type {Record<string,ForceData>} */
     forcesData;
 
-    _nodes = {};
-    _beams = {};
-    _forces = {};
+    /** @type {Record<string,Node>} */
+    nodes = {};
+    /** @type {Record<string,Beam>} */
+    beams = {};
+    /** @type {Record<string,Force>} */
+    forces = {};
 
     constructor(data) {
         this._build(data);
@@ -44,9 +51,9 @@ class StaticSystem {
         this.nodesData = {};
         this.beamsData = {};
         this.forcesData = {};
-        this._nodes = {};
-        this._beams = {};
-        this._forces = {};
+        this.nodes = {};
+        this.beams = {};
+        this.forces = {};
     }
 
     reBuild(data) {
@@ -54,67 +61,63 @@ class StaticSystem {
         this._build(data);
     }
 
-    get beams() {
-        return this._beams;
-    }
-
-    get nodes() {
-        return this._nodes;
-    }
-
-    get forces() {
-        return this._forces;
-    }
-
-    getBeam(beamId) {
-        return this._beams[beamId];
-    }
-
     setup() {
         Object.keys(this.nodesData).forEach((nodeId) => {
             let node = new Node(nodeId, this.nodesData[nodeId]);
-            this._nodes[node.id] = node;
+            this.nodes[node.id] = node;
         });
 
         Object.keys(this.beamsData).forEach((beamId) => {
             let beam = new Beam(beamId);
 
-            beam._startNode = this._nodes[this.beamsData[beamId].startNode];
-            beam._endNode = this._nodes[this.beamsData[beamId].endNode];
+            beam.startNode = this.nodes[this.beamsData[beamId].startNode];
+            beam.endNode = this.nodes[this.beamsData[beamId].endNode];
 
-            this._beams[beam.id] = beam;
+            this.beams[beam.id] = beam;
         });
 
         Object.keys(this.forcesData).forEach((forceId) => {
             let force = new Force(forceId, this.forcesData[forceId]);
 
-            force._node = this._nodes[this.forcesData[forceId].node];
+            force.node = this.nodes[this.forcesData[forceId].node];
 
-            this._forces[force.id] = force;
+            this.forces[force.id] = force;
         });
 
-        // console.log(this._nodes);
-        // console.log(this._beams);
-        // console.log(this._forces);
+        // console.log(this.nodes);
+        // console.log(this.beams);
+        // console.log(this.forces);
     }
 
+    /**
+     * @param nodeId
+     * @returns {Node|undefined}
+     */
     getNodeById(nodeId) {
         // console.log('getting node by id ' + nodeId);
-        return this._nodes[nodeId];
+        return this.nodes[nodeId];
     }
 
+    /**
+     * @param forceId
+     * @returns {Force|undefined}
+     */
     getForceById(forceId) {
         // console.log('getting force by id ' + forceId);
-        return this._forces[forceId];
+        return this.forces[forceId];
     }
 
+    /**
+     * @param beamId
+     * @returns {Beam|undefined}
+     */
     getBeamById(beamId) {
         // console.log('getting beam by id ' + beamId);
-        return this._beams[beamId];
+        return this.beams[beamId];
     }
 
     generateCandidateNewNodeName() {
-        let lastNodeName = Object.keys(this._nodes).pop();
+        let lastNodeName = Object.keys(this.nodes).pop();
         let numberInName = lastNodeName.slice(1);
         let number = parseInt(numberInName);
         let letter = lastNodeName[0];
@@ -127,7 +130,7 @@ class StaticSystem {
     }
 
     generateCandidateNewBeamName() {
-        let lastBeamName = Object.keys(this._beams).pop();
+        let lastBeamName = Object.keys(this.beams).pop();
         let numberInName = lastBeamName.slice(1);
         let number = parseInt(numberInName);
         let letter = lastBeamName[0];

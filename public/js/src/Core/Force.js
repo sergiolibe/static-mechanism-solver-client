@@ -1,9 +1,14 @@
 class Force {
+    /** @type {string} */
     id;
+    /** @type {number|undefined} */
     magnitude;
+    /** @type {number} */
     angle;
+    /** @type {ForceType} */
     type;
-    _node;
+    /** @type {string|undefined} */
+    node;
 
     constructor(id, data) {
         this.id = id;
@@ -13,17 +18,29 @@ class Force {
         // Object.freeze(this);
     }
 
-    get node() {
-        return this._node;
-    }
-
-    set node(value) {
-        this._node = value;
-    }
-
     get angleRad() {
         return this.angle * Math.PI / 180;
     }
 }
+
+/**
+ * Enum for Force types
+ * @readonly
+ * @enum {string}
+ */
+export const ForceType = {
+    DEFINED: 'DEFINED',
+    UNKNOWN: 'UNKNOWN',
+};
+
+/**
+ * Data for Force
+ * @typedef {Object} ForceData
+ * @property {number} angle
+ * @property {number|undefined} magnitude
+ * @property {ForceType} type
+ * @property {string} node
+ */
+
 
 export default Force;

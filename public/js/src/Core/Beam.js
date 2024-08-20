@@ -1,32 +1,26 @@
 class Beam {
-    _id;
-    _startNode;
-    _endNode;
+    /** @type {string} */
+    id;
+    /** @type {string|undefined} */
+    startNode;
+    /** @type {string|undefined} */
+    endNode;
 
+    /**
+     * @param {string} id
+     */
     constructor(id) {
-        this._id = id;
+        this.id = id;
         // Object.freeze(this);
     }
-
-    get id() {
-        return this._id;
-    }
-
-    get startNode() {
-        return this._startNode;
-    }
-
-    get endNode() {
-        return this._endNode;
-    }
-
-    set startNode(value) {
-        this._startNode = value;
-    }
-
-    set endNode(value) {
-        this._endNode = value;
-    }
 }
+
+/**
+ * Data for Beam
+ * @typedef {Object} BeamData
+ * @property {startNode} string
+ * @property {endNode} string
+ */
+
 
 export default Beam;
