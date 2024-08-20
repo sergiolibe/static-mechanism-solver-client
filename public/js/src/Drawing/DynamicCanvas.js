@@ -188,7 +188,6 @@ class DynamicCanvas extends BaseCanvas {
                 let nodeBeingMoved = this.staticSystem.data.nodes[this.activeElement.id];
                 nodeBeingMoved.x = this.xPxToPt(e.offsetX);
                 nodeBeingMoved.y = this.yPxToPt(e.offsetY);
-                this.updateSystemJson(this.staticSystem.data);
 
             } else if (this.mouseMode === 'movingCanvas') {
                 let previousStrokeStyle = this.context.strokeStyle;
@@ -271,8 +270,6 @@ class DynamicCanvas extends BaseCanvas {
                         y: y,
                         type: 'JOINT'
                     };
-
-                    this.updateSystemJson(this.staticSystem.data);
                 }
             } else if (this.mouseMode === 'creating-beam') {
 
@@ -293,8 +290,6 @@ class DynamicCanvas extends BaseCanvas {
                                 startNode: this.beamCreation.n1.id,
                                 endNode: this.beamCreation.n2.id
                             };
-
-                            this.updateSystemJson(this.staticSystem.data);
                         }
 
                     }
@@ -316,7 +311,6 @@ class DynamicCanvas extends BaseCanvas {
                             delete this.staticSystem.data.nodes[this.activeElement.id];
 
                         this.staticCanvas.resetReactions();
-                        this.updateSystemJson(this.staticSystem.data);
                         this.mouseMode = 'free';
                     } else {
                         // Do nothing
@@ -388,9 +382,6 @@ class DynamicCanvas extends BaseCanvas {
                     .catch(e => console.error('error on uploadStaticSystem', e));
             }
         });
-    }
-
-    updateSystemJson(json) {
     }
 
     checkIfMouseOnTopOfNode(x, y) {
