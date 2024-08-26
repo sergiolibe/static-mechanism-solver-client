@@ -39,6 +39,7 @@ class StaticCanvas extends BaseCanvas {
         // console.log(staticSystem);
         this.cleanCanvas();
         this.drawGuidelines();
+        this.drawTriangles()// _todo: make it consume from global json
 
         Object.values(this.staticSystem.beams)
             .forEach((beam) => this.drawBeam(beam));
@@ -124,7 +125,7 @@ class StaticCanvas extends BaseCanvas {
                 /** @type {{x: number, y: number}} */
                 let head = {x: force.node.x, y: force.node.y};
                 /** @type {{x: number, y: number}} */
-                let tail ;
+                let tail;
                 if (magnitude > 0) {
                     tail = {x: head.x - length * reaction.cos, y: head.y - length * reaction.sin};
                 } else {
@@ -147,6 +148,36 @@ class StaticCanvas extends BaseCanvas {
         this.context.strokeStyle = previousStrokeStyle;
         this.context.lineWidth = previousLineWidth;
         this.drawGradient();
+    }
+
+    drawTriangles() {
+        let previousFillStyle = this.context.fillStyle;
+        let previousStrokeStyle = this.context.strokeStyle;
+
+        const triangles = [
+            ['#acffac', 'n6', 'n7', 'n8'],
+            ['#ffa9a9', 'n5', 'n6', 'n9'],
+            ['#91b0fc', 'n1', 'n2', 'n3'],
+            ['#da85fd', 'n2', 'n4', 'n5'],
+            ['#4fffe5', 'n3', 'n9', 'n10'],
+        ];
+
+        triangles.forEach(([color, n1id, n2id, n3id,]) => {
+            const n1 = this.staticSystem.getNodeById(n1id);
+            const n2 = this.staticSystem.getNodeById(n2id);
+            const n3 = this.staticSystem.getNodeById(n3id);
+
+            if (n1 === undefined || n2 === undefined || n3 === undefined) {
+                return;
+            }
+            this.context.fillStyle = color + '3f'; // make rgb ~50% transparent
+            this.context.strokeStyle = 'transparent';
+
+            this.drawFilledTriangle(n1.x, n1.y, n2.x, n2.y, n3.x, n3.y);
+        })
+
+        this.context.strokeStyle = previousStrokeStyle;
+        this.context.fillStyle = previousFillStyle;
     }
 
     drawBeam(beam) {
@@ -244,9 +275,7 @@ class StaticCanvas extends BaseCanvas {
         let dX = 2;
         let dY = 2;
         this.drawJoint(x, y)
-        this.drawLine(x, y, x - dX, y - dY);
-        this.drawLine(x - dX, y - dY, x + dX, y - dY);
-        this.drawLine(x + dX, y - dY, x, y);
+        this.drawTriangle(x, y, x - dX, y - dY, x + dX, y - dY);
     }
 
     drawGradient() {

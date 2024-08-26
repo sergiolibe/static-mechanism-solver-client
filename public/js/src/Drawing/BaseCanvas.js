@@ -98,6 +98,24 @@ class BaseCanvas {
         this.context.stroke();
     }
 
+    drawTriangle(x1, y1, x2, y2, x3, y3) {
+        this.context.beginPath();
+        this.context.moveTo(this.xPtToPx(x1), this.yPtToPx(y1));
+        this.context.lineTo(this.xPtToPx(x2), this.yPtToPx(y2));
+        this.context.lineTo(this.xPtToPx(x3), this.yPtToPx(y3));
+        this.context.lineTo(this.xPtToPx(x1), this.yPtToPx(y1));
+        this.context.stroke();
+    }
+
+    drawFilledTriangle(x1, y1, x2, y2, x3, y3) {
+        this.context.beginPath();
+        this.context.moveTo(this.xPtToPx(x1), this.yPtToPx(y1));
+        this.context.lineTo(this.xPtToPx(x2), this.yPtToPx(y2));
+        this.context.lineTo(this.xPtToPx(x3), this.yPtToPx(y3));
+        this.context.fill();
+        this.context.stroke();
+    }
+
     drawWord(x, y, text) {
         this.context.fillText(text, this.xPtToPx(x), this.yPtToPx(y));
     }
@@ -113,7 +131,7 @@ class BaseCanvas {
     }
 
     xPxToPt(xPx) {
-        return this.pxToPt(xPx)-this.Cx;
+        return this.pxToPt(xPx) - this.Cx;
     }
 
     yPtToPx(yPt) {

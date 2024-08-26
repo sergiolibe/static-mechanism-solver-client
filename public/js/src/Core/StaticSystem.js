@@ -95,6 +95,10 @@ class StaticSystem {
      */
     getNodeById(nodeId) {
         // console.log('getting node by id ' + nodeId);
+        // if (!Object.hasOwn(this.nodes, nodeId)) {
+        //     console.error('Node not found!', nodeId, {nodesData: this.nodesData, nodes: this.nodes,});
+        // }
+
         return this.nodes[nodeId];
     }
 
