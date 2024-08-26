@@ -390,6 +390,7 @@ class DynamicCanvas extends BaseCanvas {
         });
     }
 
+    // defined outside
     updateSystemJson(json) {
     }
 

@@ -111,6 +111,7 @@ class FileManager {
         this.fetchStaticSystem(staticSystemName);
     }
 
+    // defined outside
     updateSystemJson(json, origin) {
     }
 }

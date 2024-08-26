@@ -55,8 +55,8 @@
 
 </body>
 
-<link href="https://cdn.jsdelivr.net/npm/jsoneditor@9.1.9/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
-<script src="https://cdn.jsdelivr.net/npm/jsoneditor@9.1.9/dist/jsoneditor.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/jsoneditor@10.1.0/dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
+<script src="https://cdn.jsdelivr.net/npm/jsoneditor@10.1.0/dist/jsoneditor.min.js"></script>
 <script type="module" src="js/index.js?<?php echo date('YmdHis'); ?>"></script>
 
 </html>
