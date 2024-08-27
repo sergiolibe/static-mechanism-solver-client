@@ -16,7 +16,7 @@ class DynamicCanvas extends BaseCanvas {
     backgroundCanvas;
     /** @type {FileManager} */
     fileManager;
-    /** @type {'creating-beam','creating-node','deleting-element','free','movingCanvas','movingNode'} */
+    /** @type {'creating-beam','creating-node','creating-triangle','deleting-element','free','movingCanvas','movingNode'} */
     mouseMode = 'free';
     /** @type {Beam|Node|null} */
     activeElement = null;
@@ -24,6 +24,8 @@ class DynamicCanvas extends BaseCanvas {
     referencePoint = {};
     /** @type {{n1:Node|null,n2:Node|null}} */
     beamCreation = {n1: null, n2: null};
+    /** @type {{n1:Node|null,n2:Node|null,n3:Node|null}} */
+    triangleCreation = {n1: null, n2: null, n3: null};
 
     constructor(canvasNodeId) {
         super(canvasNodeId);
@@ -190,7 +192,7 @@ class DynamicCanvas extends BaseCanvas {
                 nodeBeingMoved.y = this.yPxToPt(e.offsetY);
                 this.updateSystemJson(this.staticSystem.data);
 
-            } else if (this.mouseMode === 'movingCanvas') {
+            } else if (this.mouseMode === 'movingCanvas') {// _todo: try live move
                 let previousStrokeStyle = this.context.strokeStyle;
 
                 this.context.strokeStyle = 'red';
@@ -202,6 +204,8 @@ class DynamicCanvas extends BaseCanvas {
             } else if (this.mouseMode === 'creating-node') {
                 //
             } else if (this.mouseMode === 'creating-beam') {
+                this.checkIfMouseOnTopOfNode(e.offsetX, e.offsetY);
+            } else if (this.mouseMode === 'creating-triangle') {
                 this.checkIfMouseOnTopOfNode(e.offsetX, e.offsetY);
             } else if (this.mouseMode === 'deleting-element') {
                 this.checkIfMouseOnTopOfNode(e.offsetX, e.offsetY);
@@ -266,11 +270,12 @@ class DynamicCanvas extends BaseCanvas {
                 let nodeName = prompt('Enter name for new Node [x: ' + x + ' , y:' + y + ' ]', newNodeName);
 
                 if (nodeName !== null) {
-                    this.staticSystem.data.nodes[nodeName] = {
+
+                    this.staticSystem.setDataNode(nodeName, {
                         x: x,
                         y: y,
                         type: 'JOINT'
-                    };
+                    });
 
                     this.updateSystemJson(this.staticSystem.data);
                 }
@@ -289,14 +294,36 @@ class DynamicCanvas extends BaseCanvas {
                             , newBeamName);
 
                         if (beamName !== null) {
-                            this.staticSystem.data.beams[beamName] = {
+                            this.staticSystem.setDataBeam(beamName, {
                                 startNode: this.beamCreation.n1.id,
                                 endNode: this.beamCreation.n2.id
-                            };
+                            });
 
                             this.updateSystemJson(this.staticSystem.data);
                         }
 
+                    }
+                }
+
+            } else if (this.mouseMode === 'creating-triangle') {
+
+                if (this.activeElement !== null && this.activeElement instanceof Node) {
+                    if (this.triangleCreation.n1 === null) {
+                        this.triangleCreation.n1 = this.activeElement;
+                    } else if (this.triangleCreation.n2 === null && this.triangleCreation.n1.id !== this.activeElement.id) {
+                        this.triangleCreation.n2 = this.activeElement;
+                    } else if (this.triangleCreation.n3 === null && this.triangleCreation.n1.id !== this.activeElement.id && this.triangleCreation.n2.id !== this.activeElement.id) {
+                        this.triangleCreation.n3 = this.activeElement;
+
+                        let triangleName = Object.values(this.triangleCreation).map(n => n.id).join('-');
+                        this.staticSystem.setTriangleEntry(triangleName, {
+                            n1: this.triangleCreation.n1.id,
+                            n2: this.triangleCreation.n2.id,
+                            n3: this.triangleCreation.n3.id,
+                            color:'#da85fd'
+                        });
+
+                        this.updateSystemJson(this.staticSystem.data);
                     }
                 }
 
@@ -341,6 +368,11 @@ class DynamicCanvas extends BaseCanvas {
                     this.mouseMode = 'free';
                     this.beamCreation = {n1: null, n2: null};
                 }
+            } else if (this.mouseMode === 'creating-triangle') {
+                if (this.triangleCreation.n1 !== null && this.triangleCreation.n2 !== null && this.triangleCreation.n3 !== null) {
+                    this.mouseMode = 'free';
+                    this.triangleCreation = {n1: null, n2: null, n3: null};
+                }
             }
             this.updateCursor();
         });
@@ -351,6 +383,7 @@ class DynamicCanvas extends BaseCanvas {
             if (e.key === 'Escape') {//esc
                 this.mouseMode = 'free';
                 this.beamCreation = {n1: null, n2: null};
+                this.triangleCreation = {n1: null, n2: null, n3: null};
                 this.updateCursor();
             } else if (e.key === 'ArrowLeft') {//arrow left
                 this.moveInX(displacement);
@@ -381,6 +414,10 @@ class DynamicCanvas extends BaseCanvas {
                 this.print();
             } else if (e.key === 's') {//s: save current file (update)
                 this.fileManager.updateCurrentStaticSystem(this.staticSystem.data);
+            } else if (e.key === 't') {//t: triangle
+                // console.log('TRIANGLE');
+                this.mouseMode = 'creating-triangle';
+                this.updateCursor();
             } else if (e.key === 'u') {//u: upload new file
                 let fileName = prompt("Enter file name to upload", "Mechanism_" + Math.floor(Date.now() / 1000));
                 this.fileManager.uploadStaticSystem(this.staticSystem.data, fileName)
@@ -449,6 +486,8 @@ class DynamicCanvas extends BaseCanvas {
             cursorStyle = 'crosshair';
         } else if (this.mouseMode === 'creating-beam') {
             cursorStyle = 'crosshair';
+        } else if (this.mouseMode === 'creating-triangle') {
+            cursorStyle = 'crosshair';
         } else if (this.mouseMode === 'deleting-element') {
             cursorStyle = 'not-allowed';
         }
@@ -465,6 +504,15 @@ class DynamicCanvas extends BaseCanvas {
                 this.writeActionInfo('Creating Beam [Select startNode]');
             else if (this.beamCreation.n2 === null)
                 this.writeActionInfo('Creating Beam [Select endNode]');
+
+        } else if (this.mouseMode === 'creating-triangle') {
+
+            if (this.triangleCreation.n1 === null)
+                this.writeActionInfo('Creating Triangle [Select first node]');
+            else if (this.triangleCreation.n2 === null)
+                this.writeActionInfo('Creating Triangle [Select second node]');
+            else if (this.triangleCreation.n3 === null)
+                this.writeActionInfo('Creating Triangle [Select last node]');
 
         }
     }

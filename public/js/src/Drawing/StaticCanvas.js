@@ -162,15 +162,15 @@ class StaticCanvas extends BaseCanvas {
             ['#4fffe5', 'n3', 'n9', 'n10'],
         ];
 
-        triangles.forEach(([color, n1id, n2id, n3id,]) => {
-            const n1 = this.staticSystem.getNodeById(n1id);
-            const n2 = this.staticSystem.getNodeById(n2id);
-            const n3 = this.staticSystem.getNodeById(n3id);
+        Object.values(this.staticSystem.triangles).forEach(t => {
+            const n1 = this.staticSystem.getNodeById(t.n1);
+            const n2 = this.staticSystem.getNodeById(t.n2);
+            const n3 = this.staticSystem.getNodeById(t.n3);
 
             if (n1 === undefined || n2 === undefined || n3 === undefined) {
                 return;
             }
-            this.context.fillStyle = color + '3f'; // make rgb ~50% transparent
+            this.context.fillStyle = t.color + '3f'; // make rgb ~50% transparent
             this.context.strokeStyle = 'transparent';
 
             this.drawFilledTriangle(n1.x, n1.y, n2.x, n2.y, n3.x, n3.y);

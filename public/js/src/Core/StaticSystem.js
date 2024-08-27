@@ -4,7 +4,7 @@ import Node from "./Node.js";
 
 class StaticSystem {
     /** @type {{ nodes:Record<string,NodeData>, beams:Record<string,BeamData>, forces:Record<string,ForceData>}} */
-    data;
+    data = this.emptyData();
     /** @type {Record<string,NodeData>} */
     nodesData;
     /** @type {Record<string,BeamData>} */
@@ -18,6 +18,8 @@ class StaticSystem {
     beams = {};
     /** @type {Record<string,Force>} */
     forces = {};
+    /** @type {Record<string,{n1:string,n2:string,n3:string,color:string}>} */
+    triangles = {};
 
     constructor(data) {
         this._build(data);
@@ -29,13 +31,9 @@ class StaticSystem {
 
         if (data.hasOwnProperty('nodes'))
             this.nodesData = data.nodes;
-        else
-            throw new Error('data.nodes is not defined')
 
         if (data.hasOwnProperty('beams'))
             this.beamsData = data.beams;
-        else
-            throw new Error('data.beams is not defined')
 
         if (data.hasOwnProperty('forces'))
             this.forcesData = data.forces;
@@ -47,13 +45,14 @@ class StaticSystem {
     }
 
     _reset() {
-        this.data = {};
+        this.data = this.emptyData();
         this.nodesData = {};
         this.beamsData = {};
         this.forcesData = {};
         this.nodes = {};
         this.beams = {};
         this.forces = {};
+        // this.triangles = {};// _todo: maybe not
     }
 
     reBuild(data) {
@@ -90,7 +89,7 @@ class StaticSystem {
     }
 
     /**
-     * @param nodeId
+     * @param {string} nodeId
      * @returns {Node|undefined}
      */
     getNodeById(nodeId) {
@@ -100,6 +99,15 @@ class StaticSystem {
         // }
 
         return this.nodes[nodeId];
+    }
+
+    /**
+     * @param {string} nodeId
+     * @param {NodeData} nodeData
+     */
+    setDataNode(nodeId, nodeData) {
+        if (!Object.hasOwn(this.data, 'nodes')) this.data.nodes = {};
+        this.data.nodes[nodeId] = nodeData;
     }
 
     /**
@@ -120,8 +128,27 @@ class StaticSystem {
         return this.beams[beamId];
     }
 
+    /**
+     * @param {string} beamId
+     * @param {BeamData} beamData
+     */
+    setDataBeam(beamId, beamData) {
+        if (!Object.hasOwn(this.data, 'beams')) this.data.beams = {};
+        this.data.beams[beamId] = beamData;
+    }
+
+    // /** @type {Record<string,{n1:string,n2:string,n3:string,color:string}>} */
+    // triangles = {};
+    /**
+     * @param {string} triangleId
+     * @param {{n1:string,n2:string,n3:string,color:string}} triangleData
+     */
+    setTriangleEntry(triangleId, triangleData) {
+        this.triangles[triangleId] = triangleData;
+    }
+
     generateCandidateNewNodeName() {
-        let lastNodeName = Object.keys(this.nodes).pop();
+        let lastNodeName = Object.keys(this.nodes).pop() ?? 'n0';
         let numberInName = lastNodeName.slice(1);
         let number = parseInt(numberInName);
         let letter = lastNodeName[0];
@@ -144,6 +171,10 @@ class StaticSystem {
         } else {
             return letter + (number + 1);
         }
+    }
+
+    emptyData() {
+        return {nodes: {}, beams: {}, forces: {}}
     }
 }
 

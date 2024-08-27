@@ -35,6 +35,7 @@
     [Interaction with elements:
     n: <i class="magenta fa fa-dot-circle"> node</i>,
     b: <i class="magenta fa fa-slash"> beam</i>,
+    t: <i class="magenta fa fa-triangle"> triangle</i>,
     d: <i class="magenta fa fa-trash"></i>]
     <span class="info-container-box">
         <i class="fa fa-info"></i>
