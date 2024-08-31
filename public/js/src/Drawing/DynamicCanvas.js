@@ -222,7 +222,7 @@ class DynamicCanvas extends BaseCanvas {
             let zoomingIn = e.deltaY > 0;
 
             if (zoomingIn) {
-                this.zoomIn();
+                this.zoomIn(1.1);
 
                 let displacement = Math.round(this.w / 10);
 
@@ -243,7 +243,7 @@ class DynamicCanvas extends BaseCanvas {
                 if (wheelY > (height * (2 / 3)))
                     this.moveInY(-displacement);
             } else {
-                this.zoomOut();
+                this.zoomOut(1.1);
             }
         });
 
@@ -320,7 +320,7 @@ class DynamicCanvas extends BaseCanvas {
                             n1: this.triangleCreation.n1.id,
                             n2: this.triangleCreation.n2.id,
                             n3: this.triangleCreation.n3.id,
-                            color:'#da85fd'
+                            color: '#da85fd'
                         });
 
                         this.updateSystemJson(this.staticSystem.data);
