@@ -45,7 +45,7 @@
 
 <div style="display: inline-flex;">
     <div id="jsoneditor" style="width: 45vw; height: 80vh;"></div>
-    <div style="width: 45vw; height: 45vw;border: 1px solid black;position:relative">
+    <div id="canvas-wrapper" style="width: 45vw; height: 45vw;border: 1px solid black;position:relative">
         <canvas id="background-canvas" style="position:absolute;left:0;top:0;z-index:0;"></canvas>
         <canvas id="static-canvas" style="position:absolute;left:0;top:0;z-index:1;"></canvas>
         <canvas id="dynamic-canvas" style="position:absolute;left:0;top:0;z-index:2;"></canvas>

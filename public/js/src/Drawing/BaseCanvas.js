@@ -31,6 +31,12 @@ class BaseCanvas {
         // this.setupEvents();
     }
 
+    updateDimensions () {
+        let canvasContainer = this.canvasInstance.parentElement;
+        this.canvasInstance.width = canvasContainer.clientWidth;
+        this.canvasInstance.height = canvasContainer.clientHeight;
+    }
+
     // draw
 
     cleanCanvas() {

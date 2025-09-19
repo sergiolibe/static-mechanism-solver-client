@@ -26,6 +26,7 @@ class DynamicCanvas extends BaseCanvas {
     beamCreation = {n1: null, n2: null};
     /** @type {{n1:Node|null,n2:Node|null,n3:Node|null}} */
     triangleCreation = {n1: null, n2: null, n3: null};
+    isFullScreen = false;
 
     constructor(canvasNodeId) {
         super(canvasNodeId);
@@ -402,6 +403,23 @@ class DynamicCanvas extends BaseCanvas {
             } else if (e.key === 'd') {//d: delete
                 this.mouseMode = 'deleting-element';
                 this.updateCursor();
+            } else if (e.key === 'f') {//f: fullscreen
+                // this.mouseMode = 'full-screen';
+                // this.updateCursor();
+                const jsonEditor = document.getElementById('jsoneditor');
+                const canvasWrapper = document.getElementById('canvas-wrapper');
+                if (this.isFullScreen) {
+                    jsonEditor.style.display = 'initial';
+                    canvasWrapper.style.width = '45vw';
+                } else {
+                    jsonEditor.style.display = 'none';
+                    canvasWrapper.style.width = '98vw';
+                }
+                this.isFullScreen = !this.isFullScreen;
+                this.updateDimensions();
+                this.staticCanvas.updateDimensions();
+                this.backgroundCanvas.updateDimensions();
+                this.staticCanvas.drawGuidelines();
             } else if (e.key === 'i') {//i: in
                 this.zoomIn();
             } else if (e.key === 'n') {//n: node
